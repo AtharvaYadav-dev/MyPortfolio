@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Volume2, VolumeX, Shield, Radio, Terminal, Cpu } from 'lucide-react';
-import { cyberAudio } from '../utils/audio';
+import { Volume2, VolumeX, Radio, Terminal, Cpu } from 'lucide-react';
+import { soundEngine } from '../utils/soundEngine';
 
 export default function NavigationHUD({ isThermalRunaway }) {
-  const [isMuted, setIsMuted] = useState(false);
+  const [audioEnabled, setAudioEnabled] = useState(soundEngine.isAudioEnabled());
   const [timeStr, setTimeStr] = useState('');
 
   useEffect(() => {
@@ -25,15 +25,15 @@ export default function NavigationHUD({ isThermalRunaway }) {
   }, []);
 
   const handleToggleSound = () => {
-    const muted = cyberAudio.toggleMute();
-    setIsMuted(muted);
-    if (!muted) {
-      cyberAudio.playHoverTick();
+    const enabled = soundEngine.toggleAudio();
+    setAudioEnabled(enabled);
+    if (enabled) {
+      soundEngine.playHoverBlip();
     }
   };
 
   const scrollTo = (id) => {
-    cyberAudio.playRelayClick();
+    soundEngine.playRelayClick();
     const el = document.getElementById(id);
     if (el) {
       el.scrollIntoView({ behavior: 'smooth' });
@@ -47,8 +47,9 @@ export default function NavigationHUD({ isThermalRunaway }) {
         <div className="pointer-events-auto flex items-center gap-3">
           <button
             onClick={() => scrollTo('hero')}
+            onMouseEnter={() => soundEngine.playHoverBlip()}
             data-target="HOME"
-            className="flex items-center gap-2 group text-left"
+            className="flex items-center gap-2 group text-left cursor-pointer"
           >
             <div className="w-8 h-8 rounded bg-cyan-950/60 border border-cyan-500/40 flex items-center justify-center text-cyan-400 group-hover:border-cyan-400 transition-colors shadow-[0_0_15px_rgba(0,240,255,0.2)]">
               <Cpu className="w-4 h-4 text-cyan-400 group-hover:rotate-90 transition-transform duration-500" />
@@ -56,7 +57,7 @@ export default function NavigationHUD({ isThermalRunaway }) {
             <div>
               <div className="flex items-center gap-2 font-display text-xs md:text-sm font-bold tracking-widest text-slate-100 group-hover:text-cyan-300 transition-colors">
                 <span>ATHARVA YADAV</span>
-                <span className="text-[10px] text-cyan-400 font-mono px-1.5 py-0.2 bg-cyan-950/70 border border-cyan-500/30 rounded">
+                <span className="text-[10px] text-cyan-400 font-mono px-1.5 py-0.5 bg-cyan-950/70 border border-cyan-500/30 rounded">
                   AY-740
                 </span>
               </div>
@@ -68,35 +69,39 @@ export default function NavigationHUD({ isThermalRunaway }) {
         </div>
 
         {/* Center Navigation Matrix */}
-        <nav className="pointer-events-auto hidden lg:flex items-center gap-1 font-mono text-xs bg-[#040813]/80 backdrop-blur-md px-3 py-1.5 rounded-full border border-cyan-500/30 shadow-lg">
+        <nav className="pointer-events-auto hidden lg:flex items-center gap-1 font-mono text-xs bg-[#040813]/85 backdrop-blur-md px-3 py-1.5 rounded-full border border-cyan-500/30 shadow-lg">
           <button
             onClick={() => scrollTo('machines')}
+            onMouseEnter={() => soundEngine.playHoverBlip()}
             data-target="MACHINES"
-            className="px-3 py-1 text-slate-300 hover:text-cyan-300 hover:bg-cyan-500/10 rounded transition-all"
+            className="px-3 py-1 text-slate-300 hover:text-cyan-300 hover:bg-cyan-500/10 rounded transition-all cursor-pointer"
           >
             // 01. MACHINES
           </button>
           <span className="text-slate-600">/</span>
           <button
             onClick={() => scrollTo('architecture')}
+            onMouseEnter={() => soundEngine.playHoverBlip()}
             data-target="PCB_MATRIX"
-            className="px-3 py-1 text-slate-300 hover:text-cyan-300 hover:bg-cyan-500/10 rounded transition-all"
+            className="px-3 py-1 text-slate-300 hover:text-cyan-300 hover:bg-cyan-500/10 rounded transition-all cursor-pointer"
           >
             // 02. PCB_MATRIX
           </button>
           <span className="text-slate-600">/</span>
           <button
             onClick={() => scrollTo('timeline')}
+            onMouseEnter={() => soundEngine.playHoverBlip()}
             data-target="R&D_LOG"
-            className="px-3 py-1 text-slate-300 hover:text-cyan-300 hover:bg-cyan-500/10 rounded transition-all"
+            className="px-3 py-1 text-slate-300 hover:text-cyan-300 hover:bg-cyan-500/10 rounded transition-all cursor-pointer"
           >
             // 03. R&amp;D_LOG
           </button>
           <span className="text-slate-600">/</span>
           <button
             onClick={() => scrollTo('uart-terminal')}
+            onMouseEnter={() => soundEngine.playHoverBlip()}
             data-target="UART_IO"
-            className="px-3 py-1 text-slate-300 hover:text-cyan-300 hover:bg-cyan-500/10 rounded transition-all flex items-center gap-1"
+            className="px-3 py-1 text-slate-300 hover:text-cyan-300 hover:bg-cyan-500/10 rounded transition-all flex items-center gap-1 cursor-pointer"
           >
             <Terminal className="w-3 h-3 text-cyan-400" />
             // 04. UART_IO
@@ -106,7 +111,7 @@ export default function NavigationHUD({ isThermalRunaway }) {
         {/* Right Telemetry Telemetry Bar & Audio Control */}
         <div className="pointer-events-auto flex items-center gap-3">
           {/* Live System Time */}
-          <div className="hidden sm:flex items-center gap-2 font-mono text-xs text-slate-400 bg-slate-900/60 px-3 py-1 rounded border border-slate-800">
+          <div className="hidden sm:flex items-center gap-2 font-mono text-xs text-slate-400 bg-slate-900/60 px-3 py-1.5 rounded border border-slate-800">
             <Radio className="w-3 h-3 text-emerald-400 animate-pulse" />
             <span className="text-cyan-300 font-bold">{timeStr}</span>
           </div>
@@ -114,18 +119,23 @@ export default function NavigationHUD({ isThermalRunaway }) {
           {/* Sound Synthesizer Toggle */}
           <button
             onClick={handleToggleSound}
-            data-target="AUDIO"
-            className={`flex items-center gap-2 font-mono text-xs px-3 py-1.5 rounded border transition-all ${
-              isMuted
-                ? 'bg-slate-900/60 border-slate-700 text-slate-500'
-                : 'bg-cyan-950/60 border-cyan-500/40 text-cyan-300 hover:border-cyan-400 shadow-[0_0_12px_rgba(0,240,255,0.2)]'
+            onMouseEnter={() => soundEngine.playHoverBlip()}
+            data-target="AUDIO_TOGGLE"
+            className={`flex items-center gap-2 font-mono text-xs px-3 py-1.5 rounded border transition-all cursor-pointer ${
+              !audioEnabled
+                ? 'bg-slate-900/70 border-slate-700 text-slate-500 hover:border-slate-500'
+                : 'bg-cyan-950/70 border-cyan-500/50 text-cyan-300 hover:border-cyan-400 shadow-[0_0_15px_rgba(0,240,255,0.25)]'
             }`}
           >
-            {isMuted ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5 text-cyan-400" />}
-            <span className="hidden sm:inline font-bold">
-              {isMuted ? 'AUDIO: OFF' : 'AUDIO: ON'}
+            {!audioEnabled ? (
+              <VolumeX className="w-3.5 h-3.5" />
+            ) : (
+              <Volume2 className="w-3.5 h-3.5 text-cyan-400" />
+            )}
+            <span className="font-bold">
+              {!audioEnabled ? '[🔇 AUDIO_HUD: OFF]' : '[🔊 AUDIO_HUD: ON]'}
             </span>
-            {!isMuted && (
+            {audioEnabled && (
               <span className="flex items-end gap-0.5 h-3">
                 <span className="w-0.5 h-1.5 bg-cyan-400 animate-pulse" />
                 <span className="w-0.5 h-3 bg-cyan-400 animate-pulse" style={{ animationDelay: '0.15s' }} />

@@ -1,178 +1,62 @@
-// High-Fidelity Cybernetic Web Audio Synthesizer
-// Generates zero-latency synthesized sound effects without external audio files
+// Cybernetic Audio Engine - Synthesizer facade bridging soundEngine.js
+import { soundEngine } from './soundEngine';
 
-class CyberAudioEngine {
+class CyberAudioBridge {
   constructor() {
-    this.ctx = null;
-    this.isMuted = false;
+    this.engine = soundEngine;
   }
 
   init() {
-    if (!this.ctx && typeof window !== 'undefined') {
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      if (AudioCtx) {
-        this.ctx = new AudioCtx();
-      }
-    }
-    if (this.ctx && this.ctx.state === 'suspended') {
-      this.ctx.resume();
-    }
+    this.engine.init();
   }
 
   toggleMute() {
-    this.isMuted = !this.isMuted;
-    return this.isMuted;
+    const isAudioOn = this.engine.toggleAudio();
+    return !isAudioOn; // returns isMuted
   }
 
-  // Short tactile micro-click for hovering buttons and interactive pins
+  get isMuted() {
+    return this.engine.isMuted;
+  }
+
   playHoverTick() {
-    if (this.isMuted) return;
-    try {
-      this.init();
-      if (!this.ctx) return;
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(2400, this.ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(800, this.ctx.currentTime + 0.03);
-
-      gain.gain.setValueAtTime(0.04, this.ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.03);
-
-      osc.connect(gain);
-      gain.connect(this.ctx.destination);
-
-      osc.start();
-      osc.stop(this.ctx.currentTime + 0.03);
-    } catch {
-      // Audio context might be restricted before user gesture
-    }
+    this.engine.playHoverBlip();
   }
 
-  // Heavy mechanical relay click for clicks, toggles, and latching switches
   playRelayClick() {
-    if (this.isMuted) return;
-    try {
-      this.init();
-      if (!this.ctx) return;
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(140, this.ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(40, this.ctx.currentTime + 0.06);
-
-      gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.06);
-
-      osc.connect(gain);
-      gain.connect(this.ctx.destination);
-
-      osc.start();
-      osc.stop(this.ctx.currentTime + 0.06);
-    } catch {}
+    this.engine.playRelayClick();
   }
 
-  // Laser chirp sound for high-speed Galvo firing and vector animations
   playLaserChirp() {
-    if (this.isMuted) return;
-    try {
-      this.init();
-      if (!this.ctx) return;
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-
-      osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(3200, this.ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(300, this.ctx.currentTime + 0.12);
-
-      gain.gain.setValueAtTime(0.06, this.ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.12);
-
-      osc.connect(gain);
-      gain.connect(this.ctx.destination);
-
-      osc.start();
-      osc.stop(this.ctx.currentTime + 0.12);
-    } catch {}
+    this.engine.playLaserChirp();
   }
 
-  // Locking target sonar tone
   playLockTarget() {
-    if (this.isMuted) return;
-    try {
-      this.init();
-      if (!this.ctx) return;
-      const now = this.ctx.currentTime;
-      const osc1 = this.ctx.createOscillator();
-      const gain1 = this.ctx.createGain();
-
-      osc1.type = 'square';
-      osc1.frequency.setValueAtTime(880, now);
-      osc1.frequency.setValueAtTime(1760, now + 0.04);
-
-      gain1.gain.setValueAtTime(0.04, now);
-      gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
-
-      osc1.connect(gain1);
-      gain1.connect(this.ctx.destination);
-
-      osc1.start(now);
-      osc1.stop(now + 0.1);
-    } catch {}
+    this.engine.playTabLock();
   }
 
-  // Critical thermal runaway alarm sound
   playAlarm() {
-    if (this.isMuted) return;
-    try {
-      this.init();
-      if (!this.ctx) return;
-      const now = this.ctx.currentTime;
-      for (let i = 0; i < 3; i++) {
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        const start = now + i * 0.18;
-
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(950, start);
-        osc.frequency.linearRampToValueAtTime(1400, start + 0.1);
-
-        gain.gain.setValueAtTime(0.08, start);
-        gain.gain.exponentialRampToValueAtTime(0.001, start + 0.15);
-
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-
-        osc.start(start);
-        osc.stop(start + 0.15);
-      }
-    } catch {}
+    this.engine.playWarningPulse();
   }
 
-  // BIOS boot sequence telemetry beep
   playBootBeep(freq = 1200, duration = 0.05) {
-    if (this.isMuted) return;
+    if (this.engine.isMuted) return;
     try {
-      this.init();
-      if (!this.ctx) return;
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-
+      this.engine.init();
+      if (!this.engine.ctx) return;
+      const osc = this.engine.ctx.createOscillator();
+      const gain = this.engine.ctx.createGain();
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
-
-      gain.gain.setValueAtTime(0.05, this.ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
-
+      osc.frequency.setValueAtTime(freq, this.engine.ctx.currentTime);
+      gain.gain.setValueAtTime(0.05, this.engine.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.engine.ctx.currentTime + duration);
       osc.connect(gain);
-      gain.connect(this.ctx.destination);
-
+      gain.connect(this.engine.ctx.destination);
       osc.start();
-      osc.stop(this.ctx.currentTime + duration);
+      osc.stop(this.engine.ctx.currentTime + duration);
     } catch {}
   }
 }
 
-export const cyberAudio = new CyberAudioEngine();
+export const cyberAudio = new CyberAudioBridge();
+export { soundEngine };

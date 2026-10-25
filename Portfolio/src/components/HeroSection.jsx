@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Shield, ChevronDown, Terminal, Cpu, ArrowUpRight, Zap, Target } from 'lucide-react';
 import ScrambleText from './ScrambleText';
 import { cyberAudio } from '../utils/audio';
+import { soundEngine } from '../utils/soundEngine';
 
 export default function HeroSection() {
   const scrollTo = (id) => {
@@ -83,8 +84,9 @@ export default function HeroSection() {
         <div className="mt-10 flex flex-wrap items-center gap-4">
           <button
             onClick={() => scrollTo('machines')}
+            onMouseEnter={() => soundEngine.playHoverBlip()}
             data-target="INSPECT"
-            className="group px-6 py-3.5 rounded bg-cyan-500 hover:bg-cyan-400 text-black font-display font-bold text-sm tracking-wider transition-all flex items-center gap-3 glow-cyan"
+            className="group px-6 py-3.5 rounded bg-cyan-500 hover:bg-cyan-400 text-black font-display font-bold text-sm tracking-wider transition-all flex items-center gap-3 glow-cyan cursor-pointer"
           >
             <span>[INSPECT_3_MACHINES]</span>
             <ArrowUpRight className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
@@ -92,8 +94,9 @@ export default function HeroSection() {
 
           <button
             onClick={() => scrollTo('uart-terminal')}
+            onMouseEnter={() => soundEngine.playHoverBlip()}
             data-target="TERMINAL"
-            className="px-6 py-3.5 rounded bg-slate-900/80 hover:bg-slate-800 border border-cyan-500/40 hover:border-cyan-400 text-cyan-300 font-mono text-sm tracking-wider transition-all flex items-center gap-2"
+            className="px-6 py-3.5 rounded bg-slate-900/80 hover:bg-slate-800 border border-cyan-500/40 hover:border-cyan-400 text-cyan-300 font-mono text-sm tracking-wider transition-all flex items-center gap-2 cursor-pointer"
           >
             <Terminal className="w-4 h-4 text-cyan-400" />
             <span>[EXECUTE_UART_CONSOLE]</span>
@@ -101,8 +104,9 @@ export default function HeroSection() {
 
           <button
             onClick={() => scrollTo('architecture')}
+            onMouseEnter={() => soundEngine.playHoverBlip()}
             data-target="SCHEMATIC"
-            className="px-5 py-3.5 rounded bg-transparent hover:bg-cyan-950/30 border border-slate-700 hover:border-slate-500 text-slate-400 hover:text-slate-200 font-mono text-xs tracking-wider transition-all"
+            className="px-5 py-3.5 rounded bg-transparent hover:bg-cyan-950/30 border border-slate-700 hover:border-slate-500 text-slate-400 hover:text-slate-200 font-mono text-xs tracking-wider transition-all cursor-pointer"
           >
             <span>// VIEW_PCB_SCHEMATIC</span>
           </button>

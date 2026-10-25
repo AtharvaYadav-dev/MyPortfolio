@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Terminal, Send, Mail, Download, MapPin, CheckCircle, ExternalLink, RefreshCw, Sparkles } from 'lucide-react';
 import ScrambleText from './ScrambleText';
 import { cyberAudio } from '../utils/audio';
+import { soundEngine } from '../utils/soundEngine';
 
 function GithubIcon({ className = 'w-4 h-4' }) {
   return (
@@ -334,8 +335,9 @@ Control Systems: Deterministic PID Loops, 100Hz Sensor Feedback, Anti-Windup, Si
             {/* Direct Email CTA Button */}
             <a
               href="mailto:atharvayadav.dev@gmail.com?subject=Industrial%20Firmware%20R%26D%20Opportunity%20-%20Atharva%20Yadav"
+              onMouseEnter={() => soundEngine.playHoverBlip()}
               data-target="TRANSMIT_EMAIL"
-              className="w-full py-3 px-4 rounded bg-gradient-to-r from-cyan-500 to-teal-400 hover:from-cyan-400 hover:to-teal-300 text-black font-display font-bold text-xs tracking-wider transition-all flex items-center justify-center gap-2 glow-cyan"
+              className="w-full py-3 px-4 rounded bg-gradient-to-r from-cyan-500 to-teal-400 hover:from-cyan-400 hover:to-teal-300 text-black font-display font-bold text-xs tracking-wider transition-all flex items-center justify-center gap-2 glow-cyan cursor-pointer"
             >
               <Mail className="w-4 h-4" />
               <span>[TRANSMIT_DIRECT_EMAIL]</span>
@@ -346,8 +348,9 @@ Control Systems: Deterministic PID Loops, 100Hz Sensor Feedback, Anti-Windup, Si
               href="https://github.com/AtharvaYadav-dev"
               target="_blank"
               rel="noreferrer"
+              onMouseEnter={() => soundEngine.playHoverBlip()}
               data-target="GITHUB_EXT"
-              className="w-full py-2.5 px-4 rounded bg-slate-900/80 hover:bg-slate-800 border border-slate-700 hover:border-cyan-400 text-slate-200 font-mono text-xs tracking-wider transition-all flex items-center justify-center gap-2"
+              className="w-full py-2.5 px-4 rounded bg-slate-900/80 hover:bg-slate-800 border border-slate-700 hover:border-cyan-400 text-slate-200 font-mono text-xs tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
               <GithubIcon className="w-4 h-4 text-cyan-400" />
               <span>GITHUB // AtharvaYadav-dev</span>

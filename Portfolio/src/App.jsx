@@ -64,7 +64,9 @@ export default function App() {
       <CyberCursor />
 
       {/* CRT Scanline Overlay */}
-      <div className="fixed inset-0 scanlines pointer-events-none z-30 opacity-40" />
+      <div className="fixed inset-0 scanlines pointer-events-none z-30 opacity-30" />
+      {/* Subtle CRT / Oscilloscope Scanline & Noise Texture Overlay */}
+      <div className="crt-oscilloscope-overlay" />
 
       {/* Interactive 3D Wireframe CNC & Galvo Laser Background Canvas */}
       <InteractiveLaserCanvas isThermalRunaway={isThermalRunaway} />

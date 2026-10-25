@@ -1,8 +1,16 @@
 import React, { useEffect, useRef } from 'react';
+import * as THREE from 'three';
 
+/**
+ * TRUE 3D INTERACTIVE CANVAS (THREE.JS)
+ * Multi-Axis G-Code Toolpath & Hardware Visualizer
+ * - Volumetric 3D toolpath for Bio4D Bioprinter & Galvo Laser
+ * - Active moving extruder / laser nozzle emitting glowing particles at (X, Y, Z)
+ * - Interactive mouse-drag orbit controls + scroll camera FOV zoom
+ * - Real-time reactive warning strobe during thermal runaway
+ */
 export default function InteractiveLaserCanvas({ isThermalRunaway = false }) {
-  const canvasRef = useRef(null);
-  const mouseRef = useRef({ x: 0.5, y: 0.5, targetX: 0.5, targetY: 0.5 });
+  const containerRef = useRef(null);
   const runawayRef = useRef(isThermalRunaway);
 
   useEffect(() => {
@@ -10,250 +18,440 @@ export default function InteractiveLaserCanvas({ isThermalRunaway = false }) {
   }, [isThermalRunaway]);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    let animationFrameId;
-    let width = (canvas.width = window.innerWidth);
-    let height = (canvas.height = window.innerHeight);
+    const container = containerRef.current;
+    if (!container) return;
 
-    const handleResize = () => {
-      width = canvas.width = window.innerWidth;
-      height = canvas.height = window.innerHeight;
+    // --- Scene, Camera, Renderer ---
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x030712, 0.015);
+
+    let width = window.innerWidth;
+    let height = window.innerHeight;
+
+    const camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 1000);
+    camera.position.set(0, 18, 38);
+
+    const renderer = new THREE.WebGLRenderer({
+      powerPreference: 'high-performance',
+      antialias: true,
+      alpha: true,
+    });
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setClearColor(0x030712, 0.0);
+    container.innerHTML = '';
+    container.appendChild(renderer.domElement);
+
+    // --- Lighting ---
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+    scene.add(ambientLight);
+
+    const cyanPointLight = new THREE.PointLight(0x00f0ff, 2.5, 80);
+    cyanPointLight.position.set(15, 20, 15);
+    scene.add(cyanPointLight);
+
+    const amberPointLight = new THREE.PointLight(0xff9900, 2.0, 80);
+    amberPointLight.position.set(-15, 10, -15);
+    scene.add(amberPointLight);
+
+    // --- Interactive Orbit Controls (Smooth Inertia Drag) ---
+    const orbit = {
+      isDragging: false,
+      prevX: 0,
+      prevY: 0,
+      targetRotX: 0.35,
+      targetRotY: -0.4,
+      rotX: 0.35,
+      rotY: -0.4,
+      targetRadius: 42,
+      radius: 42,
+      targetFov: 50,
     };
-    window.addEventListener('resize', handleResize);
 
-    const handleMouseMove = (e) => {
-      mouseRef.current.targetX = e.clientX / width;
-      mouseRef.current.targetY = e.clientY / height;
+    const onMouseDown = (e) => {
+      // Allow drag anywhere in background or while holding left mouse
+      if (e.button === 0) {
+        orbit.isDragging = true;
+        orbit.prevX = e.clientX;
+        orbit.prevY = e.clientY;
+      }
     };
-    window.addEventListener('mousemove', handleMouseMove);
 
-    // Laser Galvo Beams & Toolpath state
-    const lasers = [
-      {
-        points: [
-          { x: 0.2, y: 0.3 },
-          { x: 0.45, y: 0.25 },
-          { x: 0.6, y: 0.45 },
-          { x: 0.35, y: 0.55 },
-          { x: 0.2, y: 0.3 },
-        ],
-        currentSeg: 0,
-        t: 0,
-        speed: 0.008,
-        color: '#00f0ff',
-        trail: [],
-      },
-      {
-        points: [
-          { x: 0.7, y: 0.6 },
-          { x: 0.85, y: 0.4 },
-          { x: 0.9, y: 0.75 },
-          { x: 0.65, y: 0.8 },
-          { x: 0.7, y: 0.6 },
-        ],
-        currentSeg: 0,
-        t: 0,
-        speed: 0.012,
-        color: '#ff9900',
-        trail: [],
-      },
-      {
-        points: [
-          { x: 0.1, y: 0.7 },
-          { x: 0.25, y: 0.85 },
-          { x: 0.4, y: 0.78 },
-          { x: 0.3, y: 0.65 },
-          { x: 0.1, y: 0.7 },
-        ],
-        currentSeg: 0,
-        t: 0,
-        speed: 0.009,
-        color: '#10b981',
-        trail: [],
-      },
-    ];
+    const onMouseMove = (e) => {
+      if (orbit.isDragging) {
+        const dx = e.clientX - orbit.prevX;
+        const dy = e.clientY - orbit.prevY;
+        orbit.targetRotY += dx * 0.005;
+        orbit.targetRotX += dy * 0.005;
+        // Clamp vertical pitch to avoid flipping upside down
+        orbit.targetRotX = Math.max(-0.2, Math.min(1.2, orbit.targetRotX));
+        orbit.prevX = e.clientX;
+        orbit.prevY = e.clientY;
+      }
+    };
 
-    // Background floating wireframe nodes
-    const nodes = [];
-    for (let i = 0; i < 48; i++) {
-      nodes.push({
-        x: Math.random(),
-        y: Math.random(),
-        z: Math.random() * 0.8 + 0.2,
-        vx: (Math.random() - 0.5) * 0.0003,
-        vy: (Math.random() - 0.5) * 0.0003,
-      });
+    const onMouseUp = () => {
+      orbit.isDragging = false;
+    };
+
+    const onTouchStart = (e) => {
+      if (e.touches.length === 1) {
+        orbit.isDragging = true;
+        orbit.prevX = e.touches[0].clientX;
+        orbit.prevY = e.touches[0].clientY;
+      }
+    };
+
+    const onTouchMove = (e) => {
+      if (orbit.isDragging && e.touches.length === 1) {
+        const dx = e.touches[0].clientX - orbit.prevX;
+        const dy = e.touches[0].clientY - orbit.prevY;
+        orbit.targetRotY += dx * 0.006;
+        orbit.targetRotX += dy * 0.006;
+        orbit.targetRotX = Math.max(-0.2, Math.min(1.2, orbit.targetRotX));
+        orbit.prevX = e.touches[0].clientX;
+        orbit.prevY = e.touches[0].clientY;
+      }
+    };
+
+    const onTouchEnd = () => {
+      orbit.isDragging = false;
+    };
+
+    window.addEventListener('mousedown', onMouseDown);
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+    window.addEventListener('touchstart', onTouchStart, { passive: true });
+    window.addEventListener('touchmove', onTouchMove, { passive: true });
+    window.addEventListener('touchend', onTouchEnd);
+
+    // --- Scroll Camera FOV / Zoom Tracking ---
+    const onScroll = () => {
+      const scrollY = window.scrollY || document.documentElement.scrollTop;
+      const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+      const scrollProgress = Math.min(1, Math.max(0, scrollY / maxScroll));
+
+      // As user scrolls, camera smoothly zooms in/out and adjusts target FOV
+      orbit.targetRadius = 42 - scrollProgress * 12;
+      orbit.targetFov = 50 + Math.sin(scrollProgress * Math.PI) * 12;
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+
+    // --- CNC Machining / Bioprinting Bed Grid ---
+    const gridHelper = new THREE.GridHelper(50, 50, 0x00f0ff, 0x0a223a);
+    gridHelper.position.y = -6;
+    scene.add(gridHelper);
+
+    // Axis indicators on bed
+    const axisMaterialX = new THREE.LineBasicMaterial({ color: 0xef4444, linewidth: 2 });
+    const axisGeoX = new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(-25, -5.9, 0),
+      new THREE.Vector3(25, -5.9, 0),
+    ]);
+    const axisLineX = new THREE.Line(axisGeoX, axisMaterialX);
+    scene.add(axisLineX);
+
+    const axisMaterialZ = new THREE.LineBasicMaterial({ color: 0x00f0ff, linewidth: 2 });
+    const axisGeoZ = new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(0, -5.9, -25),
+      new THREE.Vector3(0, -5.9, 25),
+    ]);
+    const axisLineZ = new THREE.Line(axisGeoZ, axisMaterialZ);
+    scene.add(axisLineZ);
+
+    // --- Volumetric 3D G-Code Toolpath Generation ---
+    // Represents Bio4D multi-layer spiral scaffold + Galvo vector polygonal traces
+    const toolpathPoints = [];
+    const layers = 5;
+    const pointsPerLayer = 72;
+
+    for (let l = 0; l < layers; l++) {
+      const layerY = -5 + l * 2.5;
+      for (let p = 0; p <= pointsPerLayer; p++) {
+        const theta = (p / pointsPerLayer) * Math.PI * 4;
+        const radius = 6 + Math.sin(theta * 2 + l) * 3 + (p / pointsPerLayer) * 4;
+        const x = Math.cos(theta) * radius;
+        const z = Math.sin(theta) * radius;
+        toolpathPoints.push(new THREE.Vector3(x, layerY, z));
+      }
+      // Rapid G0 vector reposition to outer galvo square
+      const outerRad = 15;
+      toolpathPoints.push(new THREE.Vector3(-outerRad, layerY, -outerRad));
+      toolpathPoints.push(new THREE.Vector3(outerRad, layerY, -outerRad));
+      toolpathPoints.push(new THREE.Vector3(outerRad, layerY, outerRad));
+      toolpathPoints.push(new THREE.Vector3(-outerRad, layerY, outerRad));
+      toolpathPoints.push(new THREE.Vector3(-outerRad, layerY, -outerRad));
     }
 
-    let time = 0;
+    const toolpathCurve = new THREE.CatmullRomCurve3(toolpathPoints, true);
+    const sampledPoints = toolpathCurve.getPoints(600);
+
+    // Toolpath Line Geometry & Material
+    const toolpathGeo = new THREE.BufferGeometry().setFromPoints(sampledPoints);
+    const colors = [];
+    for (let i = 0; i < sampledPoints.length; i++) {
+      const ratio = i / sampledPoints.length;
+      // Gradient from cyan to amber to emerald
+      const col = new THREE.Color().setHSL(0.5 + ratio * 0.4, 0.9, 0.55);
+      colors.push(col.r, col.g, col.b);
+    }
+    toolpathGeo.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+
+    const toolpathMat = new THREE.LineBasicMaterial({
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.65,
+      blending: THREE.AdditiveBlending,
+    });
+    const toolpathLine = new THREE.Line(toolpathGeo, toolpathMat);
+    scene.add(toolpathLine);
+
+    // --- Active Moving Extruder / Laser Toolhead ---
+    const toolheadGroup = new THREE.Group();
+
+    // Nozzle Cone
+    const coneGeo = new THREE.ConeGeometry(0.8, 2.2, 16);
+    coneGeo.rotateX(Math.PI);
+    const coneMat = new THREE.MeshStandardMaterial({
+      color: 0x1e293b,
+      metalness: 0.8,
+      roughness: 0.2,
+      emissive: 0x00f0ff,
+      emissiveIntensity: 0.3,
+    });
+    const nozzleCone = new THREE.Mesh(coneGeo, coneMat);
+    nozzleCone.position.y = 1.1;
+    toolheadGroup.add(nozzleCone);
+
+    // Glowing Laser Tip Sphere
+    const tipGeo = new THREE.SphereGeometry(0.4, 16, 16);
+    const tipMat = new THREE.MeshBasicMaterial({
+      color: 0xffffff,
+    });
+    const nozzleTip = new THREE.Mesh(tipGeo, tipMat);
+    toolheadGroup.add(nozzleTip);
+
+    // Dynamic Vertical Laser / Gantry Guidance Beam
+    const beamGeo = new THREE.CylinderGeometry(0.04, 0.04, 30, 8);
+    const beamMat = new THREE.MeshBasicMaterial({
+      color: 0x00f0ff,
+      transparent: true,
+      opacity: 0.45,
+      blending: THREE.AdditiveBlending,
+    });
+    const beamMesh = new THREE.Mesh(beamGeo, beamMat);
+    beamMesh.position.y = 15;
+    toolheadGroup.add(beamMesh);
+
+    scene.add(toolheadGroup);
+
+    // --- Active Particle Emitter at Active Nozzle (X, Y, Z) ---
+    const particleCount = 220;
+    const particleGeo = new THREE.BufferGeometry();
+    const particlePositions = new Float32Array(particleCount * 3);
+    const particleVelocities = [];
+    const particleAges = new Float32Array(particleCount);
+    const particleMaxAges = new Float32Array(particleCount);
+
+    for (let i = 0; i < particleCount; i++) {
+      particlePositions[i * 3] = 0;
+      particlePositions[i * 3 + 1] = 0;
+      particlePositions[i * 3 + 2] = 0;
+      particleVelocities.push({
+        x: (Math.random() - 0.5) * 0.18,
+        y: (Math.random() - 0.5) * 0.18,
+        z: (Math.random() - 0.5) * 0.18,
+      });
+      particleAges[i] = Math.random();
+      particleMaxAges[i] = 0.6 + Math.random() * 0.6;
+    }
+
+    particleGeo.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
+
+    const particleMat = new THREE.PointsMaterial({
+      size: 0.5,
+      color: 0x00f0ff,
+      transparent: true,
+      opacity: 0.9,
+      blending: THREE.AdditiveBlending,
+    });
+
+    const particleSystem = new THREE.Points(particleGeo, particleMat);
+    scene.add(particleSystem);
+
+    // --- Floating Volumetric Hardware Nodes (Ambient Dust) ---
+    const ambientNodeCount = 90;
+    const ambientNodeGeo = new THREE.BufferGeometry();
+    const ambientNodePos = new Float32Array(ambientNodeCount * 3);
+
+    for (let i = 0; i < ambientNodeCount * 3; i += 3) {
+      ambientNodePos[i] = (Math.random() - 0.5) * 70;
+      ambientNodePos[i + 1] = (Math.random() - 0.5) * 35;
+      ambientNodePos[i + 2] = (Math.random() - 0.5) * 70;
+    }
+    ambientNodeGeo.setAttribute('position', new THREE.BufferAttribute(ambientNodePos, 3));
+
+    const ambientNodeMat = new THREE.PointsMaterial({
+      size: 0.35,
+      color: 0x1e3a8a,
+      transparent: true,
+      opacity: 0.5,
+      blending: THREE.AdditiveBlending,
+    });
+    const ambientNodeSystem = new THREE.Points(ambientNodeGeo, ambientNodeMat);
+    scene.add(ambientNodeSystem);
+
+    // --- Animation Loop ---
+    let animId;
+    let clock = new THREE.Clock();
+    let pathProgress = 0;
 
     const render = () => {
-      time += 0.015;
+      const delta = clock.getDelta();
+      const elapsed = clock.getElapsedTime();
       const isPanic = runawayRef.current;
 
-      // Smooth mouse inertia
-      mouseRef.current.x += (mouseRef.current.targetX - mouseRef.current.x) * 0.05;
-      mouseRef.current.y += (mouseRef.current.targetY - mouseRef.current.y) * 0.05;
+      // 1. Smooth Camera Orbit Dampening
+      orbit.rotX += (orbit.targetRotX - orbit.rotX) * 0.06;
+      orbit.rotY += (orbit.targetRotY - orbit.rotY) * 0.06;
+      orbit.radius += (orbit.targetRadius - orbit.radius) * 0.06;
 
-      const mx = mouseRef.current.x;
-      const my = mouseRef.current.y;
-
-      // Clear Canvas
-      ctx.fillStyle = isPanic
-        ? `rgba(28, 4, 8, ${0.35 + Math.sin(time * 8) * 0.1})`
-        : 'rgba(3, 7, 18, 0.4)';
-      ctx.fillRect(0, 0, width, height);
-
-      // Draw Perspective 3D Ground Grid (CNC Bed)
-      const gridColor = isPanic ? 'rgba(239, 68, 68, 0.2)' : 'rgba(0, 240, 255, 0.08)';
-      ctx.strokeStyle = gridColor;
-      ctx.lineWidth = 1;
-
-      const horizon = height * 0.42;
-      const vpX = width * 0.5 + (mx - 0.5) * 120;
-      const vpY = horizon + (my - 0.5) * 60;
-
-      // Perspective lines converging to vanishing point
-      const numLines = 26;
-      for (let i = 0; i <= numLines; i++) {
-        const xBottom = (width / numLines) * i * 1.8 - width * 0.4;
-        ctx.beginPath();
-        ctx.moveTo(vpX, vpY);
-        ctx.lineTo(xBottom, height);
-        ctx.stroke();
+      // Subtle automatic idle yaw rotation when not dragging
+      if (!orbit.isDragging) {
+        orbit.targetRotY += 0.0015;
       }
 
-      // Horizontal perspective cross-grids
-      for (let j = 1; j <= 14; j++) {
-        const p = Math.pow(j / 14, 2.2);
-        const yPos = horizon + (height - horizon) * p;
-        ctx.beginPath();
-        ctx.moveTo(0, yPos);
-        ctx.lineTo(width, yPos);
-        ctx.stroke();
-      }
+      // Camera position from spherical coordinates
+      const camY = orbit.radius * Math.sin(orbit.rotX);
+      const horizontalDist = orbit.radius * Math.cos(orbit.rotX);
+      const camX = horizontalDist * Math.sin(orbit.rotY);
+      const camZ = horizontalDist * Math.cos(orbit.rotY);
 
-      // Draw CNC Toolpath Particles & Nodes
-      nodes.forEach((node) => {
-        node.x += node.vx;
-        node.y += node.vy;
-        if (node.x < 0) node.x = 1;
-        if (node.x > 1) node.x = 0;
-        if (node.y < 0) node.y = 1;
-        if (node.y > 1) node.y = 0;
+      camera.position.set(camX, camY, camZ);
+      camera.lookAt(0, -1, 0);
 
-        const px = node.x * width + (mx - 0.5) * 30 * node.z;
-        const py = node.y * height + (my - 0.5) * 30 * node.z;
+      // FOV zoom interpolation
+      camera.fov += (orbit.targetFov - camera.fov) * 0.05;
+      camera.updateProjectionMatrix();
 
-        ctx.fillStyle = isPanic
-          ? 'rgba(255, 100, 100, 0.6)'
-          : node.z > 0.6
-          ? 'rgba(0, 240, 255, 0.5)'
-          : 'rgba(255, 153, 0, 0.4)';
-        ctx.beginPath();
-        ctx.arc(px, py, node.z * 1.8, 0, Math.PI * 2);
-        ctx.fill();
-      });
-
-      // Draw Active Galvo Laser Traces & Beams
-      lasers.forEach((laser) => {
-        const p1 = laser.points[laser.currentSeg];
-        const nextSeg = (laser.currentSeg + 1) % laser.points.length;
-        const p2 = laser.points[nextSeg];
-
-        laser.t += laser.speed * (isPanic ? 2.5 : 1.0);
-        if (laser.t >= 1) {
-          laser.t = 0;
-          laser.currentSeg = nextSeg;
-        }
-
-        const headX = (p1.x + (p2.x - p1.x) * laser.t) * width + (mx - 0.5) * 40;
-        const headY = (p1.y + (p2.y - p1.y) * laser.t) * height + (my - 0.5) * 40;
-
-        laser.trail.push({ x: headX, y: headY, alpha: 1.0 });
-        if (laser.trail.length > 35) {
-          laser.trail.shift();
-        }
-
-        // Render toolpath guide polygon
-        ctx.beginPath();
-        ctx.strokeStyle = isPanic ? 'rgba(239, 68, 68, 0.2)' : 'rgba(0, 240, 255, 0.12)';
-        ctx.setLineDash([4, 6]);
-        laser.points.forEach((pt, idx) => {
-          const ptX = pt.x * width + (mx - 0.5) * 40;
-          const ptY = pt.y * height + (my - 0.5) * 40;
-          if (idx === 0) ctx.moveTo(ptX, ptY);
-          else ctx.lineTo(ptX, ptY);
-        });
-        ctx.stroke();
-        ctx.setLineDash([]);
-
-        // Render Glowing Laser Trail
-        if (laser.trail.length > 1) {
-          ctx.beginPath();
-          ctx.moveTo(laser.trail[0].x, laser.trail[0].y);
-          for (let i = 1; i < laser.trail.length; i++) {
-            ctx.lineTo(laser.trail[i].x, laser.trail[i].y);
-          }
-          ctx.strokeStyle = isPanic ? '#ef4444' : laser.color;
-          ctx.lineWidth = isPanic ? 3.5 : 2;
-          ctx.shadowBlur = isPanic ? 25 : 14;
-          ctx.shadowColor = isPanic ? '#ef4444' : laser.color;
-          ctx.stroke();
-          ctx.shadowBlur = 0;
-        }
-
-        // Render Laser Head Firing Spot
-        ctx.fillStyle = '#ffffff';
-        ctx.beginPath();
-        ctx.arc(headX, headY, isPanic ? 4.5 : 3, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Galvo Vector Beam from Virtual Overhead Mirror
-        const galvoMirrorX = width * 0.5 + (mx - 0.5) * 80;
-        const galvoMirrorY = -20;
-        ctx.beginPath();
-        ctx.moveTo(galvoMirrorX, galvoMirrorY);
-        ctx.lineTo(headX, headY);
-        ctx.strokeStyle = isPanic
-          ? 'rgba(239, 68, 68, 0.35)'
-          : laser.color === '#ff9900'
-          ? 'rgba(255, 153, 0, 0.25)'
-          : 'rgba(0, 240, 255, 0.25)';
-        ctx.lineWidth = isPanic ? 1.5 : 0.8;
-        ctx.stroke();
-      });
-
-      // If Thermal Runaway is active, render scanning warning grid lines & HUD noise
+      // Camera shake during Thermal Runaway
       if (isPanic) {
-        ctx.strokeStyle = 'rgba(239, 68, 68, 0.7)';
-        ctx.lineWidth = 1;
-        const scanY = (time * 800) % height;
-        ctx.beginPath();
-        ctx.moveTo(0, scanY);
-        ctx.lineTo(width, scanY);
-        ctx.stroke();
+        camera.position.x += (Math.random() - 0.5) * 0.6;
+        camera.position.y += (Math.random() - 0.5) * 0.6;
+        camera.position.z += (Math.random() - 0.5) * 0.6;
       }
 
-      animationFrameId = requestAnimationFrame(render);
+      // 2. Advance Toolhead along G-Code Toolpath
+      const toolheadSpeed = isPanic ? 0.09 : 0.035;
+      pathProgress = (pathProgress + delta * toolheadSpeed) % 1.0;
+      const nozzlePos = toolpathCurve.getPointAt(pathProgress);
+
+      toolheadGroup.position.copy(nozzlePos);
+
+      // Visual response on Thermal Runaway
+      if (isPanic) {
+        coneMat.emissive.setHex(0xef4444);
+        coneMat.emissiveIntensity = 0.9 + Math.sin(elapsed * 18) * 0.4;
+        beamMat.color.setHex(0xef4444);
+        particleMat.color.setHex(0xff3333);
+        toolpathMat.color.setHex(0xef4444);
+        toolpathLine.rotation.y += 0.01;
+      } else {
+        coneMat.emissive.setHex(0x00f0ff);
+        coneMat.emissiveIntensity = 0.4;
+        beamMat.color.setHex(0x00f0ff);
+        particleMat.color.setHex(0x00f0ff);
+        toolpathMat.color.setHex(0xffffff);
+        toolpathLine.rotation.y += 0.0008;
+      }
+
+      // 3. Update Spark Particles emitting at active nozzle coordinate (X, Y, Z)
+      const positions = particleGeo.attributes.position.array;
+      for (let i = 0; i < particleCount; i++) {
+        particleAges[i] += delta;
+
+        if (particleAges[i] >= particleMaxAges[i]) {
+          // Respawn at nozzle position with fresh impulse
+          particleAges[i] = 0;
+          positions[i * 3] = nozzlePos.x;
+          positions[i * 3 + 1] = nozzlePos.y;
+          positions[i * 3 + 2] = nozzlePos.z;
+
+          const spread = isPanic ? 0.35 : 0.15;
+          particleVelocities[i] = {
+            x: (Math.random() - 0.5) * spread,
+            y: (Math.random() * 0.2 - 0.05) * spread,
+            z: (Math.random() - 0.5) * spread,
+          };
+        } else {
+          // Advance particle with slight gravity/drag
+          positions[i * 3] += particleVelocities[i].x;
+          positions[i * 3 + 1] += particleVelocities[i].y - 0.005;
+          positions[i * 3 + 2] += particleVelocities[i].z;
+        }
+      }
+      particleGeo.attributes.position.needsUpdate = true;
+
+      // Slowly rotate ambient nodes
+      ambientNodeSystem.rotation.y = elapsed * 0.02;
+
+      renderer.render(scene, camera);
+      animId = requestAnimationFrame(render);
     };
 
     render();
 
+    // --- Window Resize Handler ---
+    const handleResize = () => {
+      width = window.innerWidth;
+      height = window.innerHeight;
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+      renderer.setSize(width, height);
+    };
+    window.addEventListener('resize', handleResize);
+
     return () => {
-      cancelAnimationFrame(animationFrameId);
+      cancelAnimationFrame(animId);
       window.removeEventListener('resize', handleResize);
-      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mousedown', onMouseDown);
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+      window.removeEventListener('touchstart', onTouchStart);
+      window.removeEventListener('touchmove', onTouchMove);
+      window.removeEventListener('touchend', onTouchEnd);
+      window.removeEventListener('scroll', onScroll);
+
+      // Clean Three.js memory allocations
+      gridHelper.geometry.dispose();
+      toolpathGeo.dispose();
+      toolpathMat.dispose();
+      coneGeo.dispose();
+      coneMat.dispose();
+      tipGeo.dispose();
+      beamGeo.dispose();
+      beamMat.dispose();
+      particleGeo.dispose();
+      particleMat.dispose();
+      ambientNodeGeo.dispose();
+      ambientNodeMat.dispose();
+      renderer.dispose();
+
+      if (container.contains(renderer.domElement)) {
+        container.removeChild(renderer.domElement);
+      }
     };
   }, []);
 
   return (
-    <canvas
-      ref={canvasRef}
-      className="fixed inset-0 pointer-events-none z-0 transition-opacity duration-500"
-      style={{ opacity: 0.95 }}
+    <div
+      ref={containerRef}
+      className="fixed inset-0 pointer-events-auto z-0 transition-opacity duration-700"
+      style={{
+        opacity: isThermalRunaway ? 1 : 0.92,
+        cursor: 'grab',
+      }}
+      title="3D Hardware Visualizer: Drag with mouse to orbit toolpath"
     />
   );
 }

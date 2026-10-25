@@ -1,6 +1,7 @@
 import React from 'react';
 import { Briefcase, GraduationCap, Award, Calendar, MapPin, CheckCircle2, ChevronRight, Zap } from 'lucide-react';
 import ScrambleText from './ScrambleText';
+import { soundEngine } from '../utils/soundEngine';
 
 const TIMELINE_EVENTS = [
   {
@@ -134,12 +135,13 @@ export default function CareerTelemetryTimeline() {
                   ))}
                 </ul>
 
-                {/* Tags */}
+                  {/* Tags */}
                 <div className="flex flex-wrap gap-2 pt-2">
                   {event.tags.map((tag, tIdx) => (
                     <span
                       key={tIdx}
-                      className="text-[11px] font-mono px-2.5 py-1 rounded bg-slate-900/80 text-slate-300 border border-slate-800 hover:border-cyan-500/40 transition-colors"
+                      onMouseEnter={() => soundEngine.playHoverBlip()}
+                      className="text-[11px] font-mono px-2.5 py-1 rounded bg-slate-900/80 text-slate-300 border border-slate-800 hover:border-cyan-500/40 transition-colors cursor-default"
                     >
                       {tag}
                     </span>
