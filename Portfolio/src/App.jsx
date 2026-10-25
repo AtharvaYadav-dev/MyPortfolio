@@ -12,6 +12,8 @@ import TelemetryHUDWidget from './components/TelemetryHUDWidget';
 import HeroSection from './components/HeroSection';
 import MachinesBay from './components/MachinesBay';
 import PCBArchitectureMatrix from './components/PCBArchitectureMatrix';
+import EngineerProfileBento from './components/EngineerProfileBento';
+import HireAtharvaROIWidget from './components/HireAtharvaROIWidget';
 import CareerTelemetryTimeline from './components/CareerTelemetryTimeline';
 import UARTTerminalCTA from './components/UARTTerminalCTA';
 import FooterHUD from './components/FooterHUD';
@@ -96,10 +98,16 @@ export default function App() {
         {/* Interactive PCB Trace Architecture Matrix */}
         <PCBArchitectureMatrix />
 
-        {/* R&D Career Telemetry Timeline */}
+        {/* 03.5: "The Complete Builder" Cross-Domain Bento Grid */}
+        <EngineerProfileBento />
+
+        {/* 04: "Why Hire Atharva" 3-in-1 Role Consolidation & ROI Bench */}
+        <HireAtharvaROIWidget />
+
+        {/* 05: R&D Career Telemetry Timeline */}
         <CareerTelemetryTimeline />
 
-        {/* Finale: Interactive UART Serial Terminal & Magnetic CTA */}
+        {/* 06: Finale: Interactive UART Serial Terminal & Magnetic CTA */}
         <UARTTerminalCTA />
       </main>
 

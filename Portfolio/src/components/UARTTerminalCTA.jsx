@@ -47,13 +47,52 @@ export default function UARTTerminalCTA() {
         newHistory.push(
           'AVAILABLE COMMANDS:',
           '  hire          - Execute recruitment protocol & initiate transmission',
-          '  github        - Open official GitHub repository (AtharvaYadav-dev)',
+          '  github        - Open official GitHub profile (AtharvaYadav-dev)',
+          '  projects      - List the 4 flagship machine repositories',
+          '  inkprinter    - Open InkPrinter (Bio4D V2) Bioprinter repo',
+          '  galvo         - Open Galvo_Scriber laser controller repo',
+          '  metal3d       - Open Metal3-D additive kinematics repo',
+          '  linkedin      - Connect with Atharva on LinkedIn',
           '  cv            - Download ATS-optimized Industrial Firmware Engineer CV',
-          '  contact       - Reveal encrypted comms channels & direct email',
+          '  contact       - Reveal direct email & location',
           '  skills        - Print low-level embedded registers & tech stack',
           '  ping          - Test cyber-physical bus round-trip latency',
           '  clear         - Wipe serial terminal buffer'
         );
+        break;
+
+      case 'projects':
+      case 'machines':
+        newHistory.push(
+          'ATHARVA YADAV // FLAGSHIP OPEN-SOURCE R&D REPOSITORIES:',
+          '  1. InkPrinter     -> https://github.com/AtharvaYadav-dev/InkPrinter',
+          '  2. Galvo_Scriber  -> https://github.com/AtharvaYadav-dev/Galvo_Scriber',
+          '  3. Metal3-D       -> https://github.com/AtharvaYadav-dev/Metal3-D',
+          '  4. SVNIT Thermal  -> Confidential Industrial R&D (Surat)'
+        );
+        break;
+
+      case 'inkprinter':
+      case 'bio4d':
+        newHistory.push('-> OPENING INKPRINTER BIOPRINTER REPO...');
+        window.open('https://github.com/AtharvaYadav-dev/InkPrinter', '_blank');
+        break;
+
+      case 'galvo':
+      case 'galvo_scriber':
+        newHistory.push('-> OPENING GALVO_SCRIBER LASER CONTROLLER REPO...');
+        window.open('https://github.com/AtharvaYadav-dev/Galvo_Scriber', '_blank');
+        break;
+
+      case 'metal3d':
+      case 'metal3-d':
+        newHistory.push('-> OPENING METAL3-D ADDITIVE KINEMATICS REPO...');
+        window.open('https://github.com/AtharvaYadav-dev/Metal3-D', '_blank');
+        break;
+
+      case 'linkedin':
+        newHistory.push('-> LAUNCHING LINKEDIN PROFILE...');
+        window.open('https://www.linkedin.com/in/atharva-yadav-dev', '_blank');
         break;
 
       case 'hire':
@@ -192,7 +231,7 @@ Control Systems: Deterministic PID Loops, 100Hz Sensor Feedback, Anti-Windup, Si
         <div>
           <div className="text-xs font-mono text-cyan-400 tracking-widest flex items-center gap-2 mb-1">
             <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
-            <span>COMMAND_INTERFACE // FULL_DUPLEX</span>
+            <span>06 // UART_IO // FULL_DUPLEX_COMMAND</span>
           </div>
           <h2 className="text-3xl md:text-4xl font-display font-extrabold text-slate-100 tracking-wide uppercase">
             UART SERIAL TERMINAL &amp; COMM PROTOCOL
@@ -270,31 +309,43 @@ Control Systems: Deterministic PID Loops, 100Hz Sensor Feedback, Anti-Windup, Si
             <span className="text-slate-500 text-[10px] mr-1">QUICK TRANSMIT:</span>
             <button
               onClick={() => handleChipClick('execute_hire_protocol')}
+              onMouseEnter={() => soundEngine.playHoverBlip()}
               data-target="HIRE"
-              className="px-2.5 py-1 rounded bg-cyan-950/80 border border-cyan-500/40 text-cyan-300 hover:bg-cyan-500 hover:text-black font-bold transition-all"
+              className="px-2.5 py-1 rounded bg-cyan-950/80 border border-cyan-500/40 text-cyan-300 hover:bg-cyan-500 hover:text-black font-bold transition-all cursor-pointer"
             >
               [&gt; EXECUTE_HIRE_PROTOCOL]
             </button>
             <button
+              onClick={() => handleChipClick('projects')}
+              onMouseEnter={() => soundEngine.playHoverBlip()}
+              data-target="PROJECTS"
+              className="px-2.5 py-1 rounded bg-slate-800/80 border border-slate-700 text-cyan-300 hover:border-cyan-400 hover:text-white transition-all cursor-pointer"
+            >
+              [&gt; LIST_PROJECTS]
+            </button>
+            <button
               onClick={() => handleChipClick('open_github_repo')}
+              onMouseEnter={() => soundEngine.playHoverBlip()}
               data-target="GITHUB"
-              className="px-2.5 py-1 rounded bg-slate-800/80 border border-slate-700 text-slate-300 hover:border-cyan-400 hover:text-white transition-all flex items-center gap-1.5"
+              className="px-2.5 py-1 rounded bg-slate-800/80 border border-slate-700 text-slate-300 hover:border-cyan-400 hover:text-white transition-all flex items-center gap-1.5 cursor-pointer"
             >
               <GithubIcon className="w-3 h-3 text-cyan-400" />
-              [&gt; OPEN_GITHUB_REPO]
+              [&gt; GITHUB_REPOS]
             </button>
             <button
               onClick={() => handleChipClick('download_ats_cv')}
+              onMouseEnter={() => soundEngine.playHoverBlip()}
               data-target="DOWNLOAD_CV"
-              className="px-2.5 py-1 rounded bg-slate-800/80 border border-slate-700 text-slate-300 hover:border-amber-400 hover:text-white transition-all flex items-center gap-1.5"
+              className="px-2.5 py-1 rounded bg-slate-800/80 border border-slate-700 text-slate-300 hover:border-amber-400 hover:text-white transition-all flex items-center gap-1.5 cursor-pointer"
             >
               <Download className="w-3 h-3 text-amber-400" />
-              [&gt; DOWNLOAD_ATS_CV]
+              [&gt; DOWNLOAD_CV]
             </button>
             <button
               onClick={() => handleChipClick('skills')}
+              onMouseEnter={() => soundEngine.playHoverBlip()}
               data-target="SKILLS"
-              className="px-2.5 py-1 rounded bg-slate-800/80 border border-slate-700 text-slate-400 hover:text-slate-200 transition-all"
+              className="px-2.5 py-1 rounded bg-slate-800/80 border border-slate-700 text-slate-400 hover:text-slate-200 transition-all cursor-pointer"
             >
               [&gt; PRINT_SKILLS]
             </button>

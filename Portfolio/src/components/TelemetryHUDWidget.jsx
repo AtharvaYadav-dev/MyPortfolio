@@ -216,7 +216,6 @@ export default function TelemetryHUDWidget({ isThermalRunaway, setIsThermalRunaw
 
       // 3. Render CH1 Waveform: 16-Ch Thermistor Peak (°C)
       ctx.beginPath();
-      const lane0Mid = laneH / 2;
       for (let i = 0; i < historyLength; i++) {
         const x = (w / (historyLength - 1)) * i;
         const val = ch1History[i];

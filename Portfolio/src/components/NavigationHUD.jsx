@@ -69,12 +69,12 @@ export default function NavigationHUD({ isThermalRunaway }) {
         </div>
 
         {/* Center Navigation Matrix */}
-        <nav className="pointer-events-auto hidden lg:flex items-center gap-1 font-mono text-xs bg-[#040813]/85 backdrop-blur-md px-3 py-1.5 rounded-full border border-cyan-500/30 shadow-lg">
+        <nav className="pointer-events-auto hidden xl:flex items-center gap-1 font-mono text-xs bg-[#040813]/85 backdrop-blur-md px-3 py-1.5 rounded-full border border-cyan-500/30 shadow-lg">
           <button
             onClick={() => scrollTo('machines')}
             onMouseEnter={() => soundEngine.playHoverBlip()}
             data-target="MACHINES"
-            className="px-3 py-1 text-slate-300 hover:text-cyan-300 hover:bg-cyan-500/10 rounded transition-all cursor-pointer"
+            className="px-2.5 py-1 text-slate-300 hover:text-cyan-300 hover:bg-cyan-500/10 rounded transition-all cursor-pointer"
           >
             // 01. MACHINES
           </button>
@@ -83,28 +83,46 @@ export default function NavigationHUD({ isThermalRunaway }) {
             onClick={() => scrollTo('architecture')}
             onMouseEnter={() => soundEngine.playHoverBlip()}
             data-target="PCB_MATRIX"
-            className="px-3 py-1 text-slate-300 hover:text-cyan-300 hover:bg-cyan-500/10 rounded transition-all cursor-pointer"
+            className="px-2.5 py-1 text-slate-300 hover:text-cyan-300 hover:bg-cyan-500/10 rounded transition-all cursor-pointer"
           >
             // 02. PCB_MATRIX
+          </button>
+          <span className="text-slate-600">/</span>
+          <button
+            onClick={() => scrollTo('builder-profile')}
+            onMouseEnter={() => soundEngine.playHoverBlip()}
+            data-target="BUILDER_PROFILE"
+            className="px-2.5 py-1 text-slate-300 hover:text-cyan-300 hover:bg-cyan-500/10 rounded transition-all cursor-pointer"
+          >
+            // 03. PROFILE
+          </button>
+          <span className="text-slate-600">/</span>
+          <button
+            onClick={() => scrollTo('roi-bench')}
+            onMouseEnter={() => soundEngine.playHoverBlip()}
+            data-target="ROI_BENCH"
+            className="px-2.5 py-1 text-slate-300 hover:text-cyan-300 hover:bg-cyan-500/10 rounded transition-all cursor-pointer"
+          >
+            // 04. ROI_BENCH
           </button>
           <span className="text-slate-600">/</span>
           <button
             onClick={() => scrollTo('timeline')}
             onMouseEnter={() => soundEngine.playHoverBlip()}
             data-target="R&D_LOG"
-            className="px-3 py-1 text-slate-300 hover:text-cyan-300 hover:bg-cyan-500/10 rounded transition-all cursor-pointer"
+            className="px-2.5 py-1 text-slate-300 hover:text-cyan-300 hover:bg-cyan-500/10 rounded transition-all cursor-pointer"
           >
-            // 03. R&amp;D_LOG
+            // 05. R&amp;D_LOG
           </button>
           <span className="text-slate-600">/</span>
           <button
             onClick={() => scrollTo('uart-terminal')}
             onMouseEnter={() => soundEngine.playHoverBlip()}
             data-target="UART_IO"
-            className="px-3 py-1 text-slate-300 hover:text-cyan-300 hover:bg-cyan-500/10 rounded transition-all flex items-center gap-1 cursor-pointer"
+            className="px-2.5 py-1 text-slate-300 hover:text-cyan-300 hover:bg-cyan-500/10 rounded transition-all flex items-center gap-1 cursor-pointer"
           >
             <Terminal className="w-3 h-3 text-cyan-400" />
-            // 04. UART_IO
+            // 06. UART_IO
           </button>
         </nav>
 

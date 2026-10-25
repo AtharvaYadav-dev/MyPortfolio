@@ -88,7 +88,7 @@ export default function HeroSection() {
             data-target="INSPECT"
             className="group px-6 py-3.5 rounded bg-cyan-500 hover:bg-cyan-400 text-black font-display font-bold text-sm tracking-wider transition-all flex items-center gap-3 glow-cyan cursor-pointer"
           >
-            <span>[INSPECT_3_MACHINES]</span>
+            <span>[INSPECT_4_MACHINES]</span>
             <ArrowUpRight className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
           </button>
 

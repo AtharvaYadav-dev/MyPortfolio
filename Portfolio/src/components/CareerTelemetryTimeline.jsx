@@ -1,5 +1,5 @@
 import React from 'react';
-import { Briefcase, GraduationCap, Award, Calendar, MapPin, CheckCircle2, ChevronRight, Zap } from 'lucide-react';
+import { Briefcase, GraduationCap, Award, ChevronRight, Zap, Globe } from 'lucide-react';
 import ScrambleText from './ScrambleText';
 import { soundEngine } from '../utils/soundEngine';
 
@@ -51,6 +51,21 @@ const TIMELINE_EVENTS = [
     ],
     tags: ['Computer Architecture', 'C/C++', 'Embedded Linux', 'Networking Protocols', 'Data Structures'],
   },
+  {
+    period: '2025',
+    role: 'SOCIAL IMPACT DEVELOPER & FULL-STACK PLATFORM ENGINEER',
+    company: 'Paranubhuti Foundation',
+    location: 'Mumbai, India',
+    status: 'COMPLETED_IMPACT',
+    type: 'WORK',
+    icon: Globe,
+    highlight: 'HIGH-IMPACT PUBLIC DIGITAL INFRASTRUCTURE',
+    details: [
+      'Engineered responsive web applications and data portals using React, Next.js, Node.js, and GSAP for social welfare and educational outreach.',
+      'Designed real-time tracking dashboards, mobile-first accessible user flows, and optimized frontend performance with zero downtime.',
+    ],
+    tags: ['React', 'Next.js', 'Node.js', 'GSAP', 'Cloud Telemetry', 'REST APIs', 'Social Impact'],
+  },
 ];
 
 export default function CareerTelemetryTimeline() {
@@ -61,7 +76,7 @@ export default function CareerTelemetryTimeline() {
         <div>
           <div className="text-xs font-mono text-cyan-400 tracking-widest flex items-center gap-2 mb-1">
             <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
-            <span>R&amp;D CHRONICLE // VERIFIED LOGS</span>
+            <span>05 // R&amp;D_LOG // CAREER_TELEMETRY</span>
           </div>
           <h2 className="text-3xl md:text-4xl font-display font-extrabold text-slate-100 tracking-wide uppercase">
             CAREER TELEMETRY &amp; MILESTONES

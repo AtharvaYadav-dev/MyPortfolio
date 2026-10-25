@@ -70,7 +70,7 @@ export default function PCBArchitectureMatrix() {
         <div>
           <div className="text-xs font-mono text-cyan-400 tracking-widest flex items-center gap-2 mb-1">
             <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
-            <span>INTERACTIVE HARDWARE TOPOLOGY</span>
+            <span>02 // PCB_MATRIX // SILICON_TOPOLOGY</span>
           </div>
           <h2 className="text-3xl md:text-4xl font-display font-extrabold text-slate-100 tracking-wide uppercase">
             PCB ARCHITECTURE &amp; SILICON MATRIX
