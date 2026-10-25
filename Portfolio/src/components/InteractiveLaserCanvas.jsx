@@ -303,12 +303,14 @@ export default function InteractiveLaserCanvas({ isThermalRunaway = false }) {
 
     // --- Animation Loop ---
     let animId;
-    let clock = new THREE.Clock();
+    let lastTime = performance.now();
+    const startTime = performance.now();
     let pathProgress = 0;
 
-    const render = () => {
-      const delta = clock.getDelta();
-      const elapsed = clock.getElapsedTime();
+    const render = (currentTime = performance.now()) => {
+      const delta = Math.min((currentTime - lastTime) / 1000, 0.1);
+      lastTime = currentTime;
+      const elapsed = (currentTime - startTime) / 1000;
       const isPanic = runawayRef.current;
 
       // 1. Smooth Camera Orbit Dampening

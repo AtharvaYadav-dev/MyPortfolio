@@ -6,10 +6,27 @@ class SoundEngine {
     this.ctx = null;
     this.isMuted = false;
     this.hasUserInteracted = false;
+
+    if (typeof window !== 'undefined') {
+      const unlockAudio = () => {
+        this.hasUserInteracted = true;
+        if (!this.ctx) {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtx) this.ctx = new AudioCtx();
+        } else if (this.ctx.state === 'suspended') {
+          this.ctx.resume().catch(() => {});
+        }
+        window.removeEventListener('pointerdown', unlockAudio);
+        window.removeEventListener('keydown', unlockAudio);
+      };
+      window.addEventListener('pointerdown', unlockAudio, { once: true, passive: true });
+      window.addEventListener('keydown', unlockAudio, { once: true, passive: true });
+    }
   }
 
   init() {
     if (typeof window === 'undefined') return;
+    if (!this.hasUserInteracted) return;
     if (!this.ctx) {
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
       if (AudioCtx) {
