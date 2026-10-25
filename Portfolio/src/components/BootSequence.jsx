@@ -12,7 +12,7 @@ const BOOT_LOGS = [
   { time: '1.140s', text: 'ESTABLISHING DUAL-MCU LOCKSTEP VIA CUSTOM M118 PROTOCOL...', status: 'SYNCED' },
   { time: '1.400s', text: 'SPAWNING MULTI-THREADED PYSIDE6 + PYOPENGL DIGITAL TWIN...', status: '100%' },
   { time: '1.680s', text: 'CONFIGURING DB25 GALVO LASER SUB-MICROSECOND GATING...', status: 'ONLINE' },
-  { time: '1.920s', text: 'CYBER-PHYSICAL OS STACK READY. MOUNTING INTERFACE...', status: 'NOMINAL' }
+  { time: '1.920s', text: 'EMBEDDED FIRMWARE OS STACK READY. MOUNTING INTERFACE...', status: 'NOMINAL' }
 ];
 
 export default function BootSequence({ onComplete }) {

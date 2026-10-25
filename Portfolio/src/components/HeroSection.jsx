@@ -53,7 +53,7 @@ export default function HeroSection() {
       <div className="my-auto py-12 md:py-16">
         <div className="mb-4 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-950/40 border border-cyan-500/30 text-xs font-mono text-cyan-300">
           <Target className="w-3.5 h-3.5 text-cyan-400" />
-          <span>CYBER-PHYSICAL SYSTEMS &amp; INDUSTRIAL AUTOMATION</span>
+          <span>EMBEDDED SYSTEMS &amp; INDUSTRIAL AUTOMATION</span>
         </div>
 
         <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-display font-extrabold tracking-tight leading-[0.95] text-slate-100 uppercase">

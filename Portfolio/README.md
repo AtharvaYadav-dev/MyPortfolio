@@ -1,4 +1,4 @@
-# Atharva Yadav // Industrial Firmware & Cyber-Physical Systems Portfolio
+# Atharva Yadav // Industrial Firmware & Embedded Systems Portfolio
 
 ```
     █████╗ ████████╗██╗  ██╗ █████╗ ██████╗ ██╗   ██╗ █████╗ 
@@ -7,7 +7,7 @@
    ██╔══██║   ██║   ██╔══██║██╔══██║██╔══██╗╚██╗ ██╔╝██╔══██║
    ██║  ██║   ██║   ██║  ██║██║  ██║██║  ██║ ╚████╔╝ ██║  ██║
    ╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝  ╚═══╝  ╚═╝  ╚═╝
-   [ INDUSTRIAL FIRMWARE // BARE-METAL C++ // CYBER-PHYSICAL SYSTEMS ]
+   [ INDUSTRIAL FIRMWARE // BARE-METAL C++ // EMBEDDED SYSTEMS ]
 ```
 
 [![Live Demo](https://img.shields.io/badge/LIVE_TELEMETRY-https%3A%2F%2Fmy--portfolio--nu--seven--83.vercel.app%2F-00f0ff?style=for-the-badge&logo=vercel&logoColor=black)](https://my-portfolio-nu-seven-83.vercel.app/)
@@ -28,7 +28,7 @@ Experience the real-time 3D volumetric G-Code toolpath canvas, synchronized 4-ch
 
 ## ⚡ Executive Summary
 
-**Atharva Yadav** is an Industrial Firmware Developer at **Specialise Products Pvt. Ltd. (SPPL)** in Mumbai, India. Promoted from Graduate Engineer Trainee (GET) to Firmware Developer in just 4 months, Atharva architects hard real-time cyber-physical systems bridging silicon registers to desktop supervisory interfaces.
+**Atharva Yadav** is an Industrial Firmware Developer at **Specialise Products Pvt. Ltd. (SPPL)** in Mumbai, India. Promoted from Graduate Engineer Trainee (GET) to Firmware Developer in just 4 months, Atharva architects hard real-time embedded systems bridging silicon registers to desktop supervisory interfaces.
 
 ### The "Silicon-to-Screen" Philosophy
 Most engineering organizations silo firmware, desktop software, and mechatronics into disconnected teams—creating weeks of API synchronization meetings, jitter finger-pointing, and integration defects. Atharva delivers **zero-friction single-pipeline engineering**:

@@ -13,7 +13,7 @@ function GithubIcon({ className = 'w-4 h-4' }) {
 
 const INITIAL_TERMINAL_OUTPUT = [
   'UART_BUS_COM3: ACTIVE (BAUD 115200 8-N-1)',
-  'FIRMWARE_CORE: ATHARVA_YADAV // R&D CYBER-PHYSICAL SYSTEMS',
+  'FIRMWARE_CORE: ATHARVA_YADAV // R&D EMBEDDED SYSTEMS',
   'TYPE "help" OR CLICK COMMAND CHIPS TO TRANSMIT INSTRUCTIONS.',
   '-----------------------------------------------------------------',
 ];
@@ -53,7 +53,7 @@ export default function UARTTerminalCTA() {
           '  cv            - Download ATS-optimized Industrial Firmware Engineer CV',
           '  contact       - Reveal direct email & location',
           '  skills        - Print low-level embedded registers & tech stack',
-          '  ping          - Test cyber-physical bus round-trip latency',
+          '  ping          - Test hardware bus round-trip latency',
           '  clear         - Wipe serial terminal buffer'
         );
         break;
@@ -170,7 +170,7 @@ export default function UARTTerminalCTA() {
   const triggerCVDownload = () => {
     // Generate clean downloadable text/markdown CV file if PDF asset is pending
     const cvText = `========================================================================
-ATHARVA YADAV — INDUSTRIAL FIRMWARE & CYBER-PHYSICAL SYSTEMS ENGINEER
+ATHARVA YADAV — INDUSTRIAL FIRMWARE & EMBEDDED SYSTEMS ENGINEER
 Location: Mumbai, India | Relocation: Bangalore / Pune / Mumbai
 GitHub: https://github.com/AtharvaYadav-dev
 Email: atharvayadav.dev@gmail.com
@@ -186,7 +186,7 @@ Specialise Products Pvt. Ltd. (SPPL), Mumbai | 2026 – Present
 • Developed custom M118 dual-MCU lockstep communication protocol for multi-axis industrial 3D bioprinters with 100Hz deterministic PID pneumatic pressure regulation.
 • Engineered sub-microsecond DB25 parallel port hardware gating for Galvo laser vector scribing engines using low-level Win32 DLL interfacing (MarkEzd.dll).
 
-FLAGSHIP CYBER-PHYSICAL SYSTEMS:
+FLAGSHIP EMBEDDED & INDUSTRIAL SYSTEMS:
 ------------------------------------------------------------------------
 1. SVNIT 16-Channel Thermal DAQ & Safety Watchdog:
    STM32 DMA/ADC, 16-Channel 12-bit Thermistor Array, Active Thermal Gradient Tracking, Hardware Watchdog (IWDG) Emergency Cutoff, Multi-Threaded PySide6 UI.

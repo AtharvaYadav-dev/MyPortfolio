@@ -32,9 +32,9 @@ const TIMELINE_EVENTS = [
     highlight: 'SPECIALIZATION: EMBEDDED EDGE AI & NEURAL KINEMATICS',
     details: [
       'Researching edge machine learning models for predictive maintenance and real-time anomaly detection directly on ARM Cortex-M hardware.',
-      'Studying advanced cyber-physical system modeling, digital signal processing (DSP), and non-linear adaptive closed-loop control algorithms.',
+      'Studying advanced embedded system modeling, digital signal processing (DSP), and non-linear adaptive closed-loop control algorithms.',
     ],
-    tags: ['Edge AI', 'ARM CMSIS-DSP', 'Kinematics', 'Anomaly Detection', 'Distributed Cyber-Physical'],
+    tags: ['Edge AI', 'ARM CMSIS-DSP', 'Kinematics', 'Anomaly Detection', 'Distributed Embedded Systems'],
   },
   {
     period: '2026',

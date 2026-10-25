@@ -62,7 +62,7 @@ export default function NavigationHUD({ isThermalRunaway }) {
                 </span>
               </div>
               <div className="text-[10px] font-mono text-slate-400 tracking-wider">
-                INDUSTRIAL FIRMWARE &amp; CYBER-PHYSICAL
+                INDUSTRIAL FIRMWARE &amp; EMBEDDED SYSTEMS
               </div>
             </div>
           </button>
