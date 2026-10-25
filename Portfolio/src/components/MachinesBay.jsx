@@ -622,7 +622,7 @@ import re, binascii
 def parse_m118_telemetry_frame(raw_packet: bytes) -> dict:
     if not raw_packet.startswith(b"M118"):
         return None
-    match = re.match(rb"M118 A:([A-Z0-9]+) P:([0-9\.]+) T:([0-9\.]+) S:([0-9A-F]{2})", raw_packet)
+    match = re.match(rb"M118 A:([A-Z0-9]+) P:([0-9.]+) T:([0-9.]+) S:([0-9A-F]{2})", raw_packet)
     if not match:
         return None
     axis, kpa, temp, crc = match.groups()

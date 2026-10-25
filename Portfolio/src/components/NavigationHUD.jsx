@@ -128,6 +128,14 @@ export default function NavigationHUD({ isThermalRunaway }) {
 
         {/* Right Telemetry Telemetry Bar & Audio Control */}
         <div className="pointer-events-auto flex items-center gap-3">
+          {/* Critical Thermal Alert Banner */}
+          {isThermalRunaway && (
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-red-600 text-white font-mono text-[11px] font-bold animate-bounce shadow-[0_0_20px_#ef4444]">
+              <span className="w-2 h-2 rounded-full bg-white animate-ping" />
+              <span>[🔥 CRITICAL RUNAWAY]</span>
+            </div>
+          )}
+
           {/* Live System Time */}
           <div className="hidden sm:flex items-center gap-2 font-mono text-xs text-slate-400 bg-slate-900/60 px-3 py-1.5 rounded border border-slate-800">
             <Radio className="w-3 h-3 text-emerald-400 animate-pulse" />

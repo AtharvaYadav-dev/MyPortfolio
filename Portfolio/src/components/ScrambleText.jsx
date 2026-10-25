@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 const CIPHER_CHARS = '0123456789ABCDEF!<>-_\\/[]{}—=+*^?#_$%&';
 
@@ -16,7 +16,7 @@ export default function ScrambleText({
   const elementRef = useRef(null);
   const hasAnimatedRef = useRef(false);
 
-  const startScramble = () => {
+  const startScramble = useCallback(() => {
     if (isScrambling) return;
     setIsScrambling(true);
 
@@ -45,7 +45,7 @@ export default function ScrambleText({
         setIsScrambling(false);
       }
     }, speed);
-  };
+  }, [isScrambling, text, speed]);
 
   useEffect(() => {
     if (!autoStart) return;
@@ -65,7 +65,7 @@ export default function ScrambleText({
     }
 
     return () => observer.disconnect();
-  }, [text, autoStart]);
+  }, [autoStart, startScramble]);
 
   return (
     <Component

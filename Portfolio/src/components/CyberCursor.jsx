@@ -15,7 +15,7 @@ export default function CyberCursor() {
 
   const mousePos = useRef({ x: -100, y: -100 });
   const lagPos = useRef({ x: -100, y: -100 });
-  const prevTime = useRef(Date.now());
+  const prevTime = useRef(0);
   const prevPos = useRef({ x: 0, y: 0 });
   const currentVel = useRef(0);
   const isLockedRef = useRef(false);

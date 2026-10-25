@@ -1,16 +1,10 @@
 import React from 'react';
 import {
   TrendingUp,
-  Layers,
-  Zap,
-  Globe,
   GraduationCap,
   Award,
   Cpu,
   Compass,
-  CheckCircle2,
-  ArrowUpRight,
-  Code2,
   HeartHandshake
 } from 'lucide-react';
 import { soundEngine } from '../utils/soundEngine';

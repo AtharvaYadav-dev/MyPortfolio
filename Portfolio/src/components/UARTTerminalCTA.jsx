@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Terminal, Send, Mail, Download, MapPin, CheckCircle, ExternalLink, RefreshCw, Sparkles } from 'lucide-react';
-import ScrambleText from './ScrambleText';
+import { Terminal, Send, Mail, Download, MapPin, CheckCircle, ExternalLink, Sparkles } from 'lucide-react';
 import { cyberAudio } from '../utils/audio';
 import { soundEngine } from '../utils/soundEngine';
 
@@ -12,7 +11,6 @@ function GithubIcon({ className = 'w-4 h-4' }) {
   );
 }
 
-
 const INITIAL_TERMINAL_OUTPUT = [
   'UART_BUS_COM3: ACTIVE (BAUD 115200 8-N-1)',
   'FIRMWARE_CORE: ATHARVA_YADAV // R&D CYBER-PHYSICAL SYSTEMS',
@@ -23,7 +21,6 @@ const INITIAL_TERMINAL_OUTPUT = [
 export default function UARTTerminalCTA() {
   const [inputVal, setInputVal] = useState('');
   const [history, setHistory] = useState(INITIAL_TERMINAL_OUTPUT);
-  const [isTyping, setIsTyping] = useState(false);
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
 

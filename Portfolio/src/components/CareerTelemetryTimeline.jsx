@@ -1,5 +1,5 @@
 import React from 'react';
-import { Briefcase, GraduationCap, Award, ChevronRight, Zap, Globe } from 'lucide-react';
+import { Briefcase, GraduationCap, Award, ChevronRight, Zap, Globe, Calendar, MapPin } from 'lucide-react';
 import ScrambleText from './ScrambleText';
 import { soundEngine } from '../utils/soundEngine';
 

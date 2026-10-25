@@ -1,18 +1,11 @@
 import React, { useState } from 'react';
 import {
-  Users,
-  UserCheck,
-  Zap,
   ArrowRight,
-  CheckCircle2,
-  AlertCircle,
   Cpu,
   Layers,
   Compass,
-  DollarSign,
-  Clock,
   Sparkles,
-  ShieldCheck
+  DollarSign
 } from 'lucide-react';
 import { soundEngine } from '../utils/soundEngine';
 
@@ -169,18 +162,26 @@ export default function HireAtharvaROIWidget() {
             </h3>
           </div>
 
-          {/* Project Duration Slider */}
-          <div className="flex items-center gap-3 bg-slate-900/80 p-2 rounded border border-cyan-500/30 font-mono text-xs">
-            <span className="text-slate-400">PROJECT TIMELINE:</span>
-            <input
-              type="range"
-              min="2"
-              max="12"
-              value={projectMonths}
-              onChange={(e) => setProjectMonths(Number(e.target.value))}
-              className="w-28 sm:w-36 accent-cyan-400 h-1 bg-slate-800 rounded appearance-none cursor-pointer"
-            />
-            <span className="text-cyan-300 font-bold">{projectMonths} MONTHS</span>
+          {/* Project Duration Slider & Savings Metric */}
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex items-center gap-2 bg-emerald-950/60 px-3 py-1.5 rounded border border-emerald-500/40 font-mono text-xs text-emerald-300">
+              <DollarSign className="w-3.5 h-3.5" />
+              <span>EST. CAPITAL SAVED:</span>
+              <span className="font-bold text-white font-display">~${(estimatedSavings / 1000).toFixed(0)}K</span>
+            </div>
+
+            <div className="flex items-center gap-3 bg-slate-900/80 p-2 rounded border border-cyan-500/30 font-mono text-xs">
+              <span className="text-slate-400">PROJECT TIMELINE:</span>
+              <input
+                type="range"
+                min="2"
+                max="12"
+                value={projectMonths}
+                onChange={(e) => setProjectMonths(Number(e.target.value))}
+                className="w-24 sm:w-32 accent-cyan-400 h-1 bg-slate-800 rounded appearance-none cursor-pointer"
+              />
+              <span className="text-cyan-300 font-bold">{projectMonths} MO</span>
+            </div>
           </div>
         </div>
 

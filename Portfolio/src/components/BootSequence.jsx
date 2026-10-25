@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Terminal, Cpu, ShieldCheck, Zap } from 'lucide-react';
 import { cyberAudio } from '../utils/audio';
@@ -19,6 +19,13 @@ export default function BootSequence({ onComplete }) {
   const [logs, setLogs] = useState([]);
   const [progress, setProgress] = useState(0);
   const [isDone, setIsDone] = useState(false);
+
+  const skipBoot = useCallback(() => {
+    cyberAudio.playRelayClick();
+    setProgress(100);
+    setIsDone(true);
+    setTimeout(onComplete, 400);
+  }, [onComplete]);
 
   useEffect(() => {
     let currentLogIndex = 0;
@@ -65,14 +72,7 @@ export default function BootSequence({ onComplete }) {
       clearInterval(progressInterval);
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [onComplete]);
-
-  const skipBoot = () => {
-    cyberAudio.playRelayClick();
-    setProgress(100);
-    setIsDone(true);
-    setTimeout(onComplete, 400);
-  };
+  }, [onComplete, skipBoot]);
 
   return (
     <AnimatePresence>
