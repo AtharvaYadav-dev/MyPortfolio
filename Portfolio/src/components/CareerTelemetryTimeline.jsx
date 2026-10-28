@@ -14,12 +14,12 @@ const TIMELINE_EVENTS = [
     icon: Briefcase,
     highlight: 'PROMOTED FROM GRADUATE ENGINEER TRAINEE (GET)',
     details: [
-      'Architecting hard real-time firmware in bare-metal C++ on STM32 microcontrollers with circular DMA buffers and sub-millisecond ADC interrupt scanning.',
-      'Designed and deployed headless Automated Test Equipment (ATE) integrating multi-threaded PySide6 desktop supervisory UIs with PyOpenGL 3D digital twins.',
-      'Developed custom M118 dual-MCU lockstep communication protocol for multi-axis industrial 3D bioprinters with 100Hz deterministic PID pneumatic pressure regulation.',
-      'Engineered sub-microsecond DB25 parallel port hardware gating for Galvo laser vector scribing engines using low-level Win32 DLL interfacing (MarkEzd.dll).',
+      'Promoted from Graduate Engineer Trainee in 4 months to lead full-stack R&D firmware across SPPL industrial photonics, wafer laser scribers, and LWIR thermography cameras.',
+      'Architected SP2L series firmware: >5 kW peak NIR wafer scribers (SP2L-SWPSMS), multi-wavelength 1064/532/355 nm DPSS solar cell platforms (SP2L-LSM), and 20W–100W IPG fiber laser MOTF marking.',
+      'Programmed real-time 100 Mbit Ethernet radiometric streaming parsers for 640×480 LWIR cameras (-20°C to 1000°C) and dual 50W diode phase-lock NDT weld inspection firmware (SP2L-LTWIS).',
+      'Developed 100Hz closed-loop pneumatic PID control (MPX5700) with M118 dual-MCU lockstep and PySide6/PyOpenGL 3D digital twins (Bio4D V2 & InkPrinter).',
     ],
-    tags: ['Bare-Metal C/C++', 'STM32 DMA', 'FreeRTOS', 'PySide6 ATE', '100Hz PID', 'Galvo Laser', 'Win32 DLL'],
+    tags: ['Bare-Metal C/C++', 'SP2L Laser Series', 'LWIR Thermography', '100Mbit Ethernet', 'STM32 DMA', 'PySide6 ATE', '100Hz PID'],
   },
   {
     period: '2026 – 2028',

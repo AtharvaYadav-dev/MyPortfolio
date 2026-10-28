@@ -108,6 +108,11 @@ export default function BlueprintDrawer({ machine, isOpen, onClose }) {
                 <h2 className="text-xl sm:text-2xl font-display font-black text-white uppercase leading-snug">
                   {machine.title}
                 </h2>
+                {machine.subtitle && (
+                  <div className="text-xs sm:text-sm font-mono text-cyan-300 font-bold border-l-2 border-cyan-400 pl-2">
+                    {machine.subtitle}
+                  </div>
+                )}
                 <p className="text-slate-300 leading-relaxed text-xs sm:text-sm">
                   {machine.summary}
                 </p>
@@ -274,7 +279,7 @@ export default function BlueprintDrawer({ machine, isOpen, onClose }) {
                 </div>
               ) : (
                 <div className="p-3 rounded bg-cyan-950/40 border border-cyan-500/30 text-center text-[11px] text-cyan-300">
-                  <span>CONFIDENTIAL INDUSTRIAL R&amp;D // SYSTEM ARCHITECTURE DEPLOYED AT SVNIT SURAT</span>
+                  <span>CONFIDENTIAL INDUSTRIAL R&amp;D // PROPRIETARY SYSTEM ARCHITECTURE • {machine.organization}</span>
                 </div>
               )}
             </div>

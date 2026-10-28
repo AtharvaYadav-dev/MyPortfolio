@@ -1,0 +1,16 @@
+{
+  "name": "atharva-yadav-portfolio-workspace",
+  "version": "4.0.0",
+  "private": true,
+  "description": "Atharva Yadav — Firmware & Embedded Systems Engineer (R&D) Portfolio",
+  "scripts": {
+    "dev": "npm --prefix Portfolio run dev",
+    "build": "npm --prefix Portfolio run build",
+    "preview": "npm --prefix Portfolio run preview",
+    "lint": "npm --prefix Portfolio run lint"
+  },
+  "workspaces": [
+    "Portfolio"
+  ]
+}
+

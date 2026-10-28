@@ -45,7 +45,9 @@ export default function UARTTerminalCTA() {
           'AVAILABLE COMMANDS:',
           '  hire          - Execute recruitment protocol & initiate transmission',
           '  github        - Open official GitHub profile (AtharvaYadav-dev)',
-          '  projects      - List the 4 flagship machine repositories',
+          '  projects      - List the 8 R&D industrial machines across 2 series',
+          '  series_a      - Inspect Series A: BARC Bridge, SVNIT DAQ, Bio4D',
+          '  series_b      - Inspect Series B: SPPL Photonics, Wafer Lasers, LWIR',
           '  inkprinter    - Open InkPrinter (Bio4D V2) Bioprinter repo',
           '  galvo         - Open Galvo_Scriber laser controller repo',
           '  metal3d       - Open Metal3-D additive kinematics repo',
@@ -60,12 +62,26 @@ export default function UARTTerminalCTA() {
 
       case 'projects':
       case 'machines':
+      case 'series_a':
+      case 'series_b':
         newHistory.push(
-          'ATHARVA YADAV // FLAGSHIP OPEN-SOURCE R&D REPOSITORIES:',
-          '  1. InkPrinter     -> https://github.com/AtharvaYadav-dev/InkPrinter',
-          '  2. Galvo_Scriber  -> https://github.com/AtharvaYadav-dev/Galvo_Scriber',
-          '  3. Metal3-D       -> https://github.com/AtharvaYadav-dev/Metal3-D',
-          '  4. SVNIT Thermal  -> Confidential Industrial R&D (Surat)'
+          '====================================================================',
+          'ATHARVA YADAV // 8 INDUSTRIAL R&D MACHINES ACROSS 2 OPERATIONAL SERIES',
+          '====================================================================',
+          'SERIES A: PRECISION INSTRUMENTATION, THERMAL DAQ & BIOPRINTING:',
+          '  M_01. BARC High-Precision Capacitance Bridge (Sub-pF Lock-In PSD)',
+          '  M_02. SVNIT 16-Channel Thermal DAQ Watchdog (STM32 Circular DMA & IWDG)',
+          '  M_03. Bio4D V2 & InkPrinter (100Hz PID) -> https://github.com/AtharvaYadav-dev/InkPrinter',
+          '',
+          'SERIES B: SPPL INDUSTRIAL PHOTONICS, WAFER LASERS & LWIR THERMOGRAPHY:',
+          '  M_04. SP2L-SWPSMS Wafer Scribing (>5kW NIR) -> https://github.com/AtharvaYadav-dev/Galvo_Scriber',
+          '  M_05. SP2L-LSM Photovoltaic Scribing (1064/532/355 nm DPSS P1/P2/P3)',
+          '  M_06. SP2L-LEM Industrial Fiber Laser (20W-100W IPG Photonics, 2500 mm/s)',
+          '  M_07. SP2L-TC Radiometric LWIR Thermography (640x480, 100Mbit Ethernet)',
+          '  M_08. SP2L-LTWIS Lock-In NDT & Micro-Texturing (2x50W Diode, <20 µm)',
+          '',
+          'OPEN-SOURCE ADDITIVE KINEMATICS ENGINE:',
+          '  * Metal3-D Motion Planner -> https://github.com/AtharvaYadav-dev/Metal3-D'
         );
         break;
 
