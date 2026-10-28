@@ -303,14 +303,19 @@ export default function InteractiveLaserCanvas({ isThermalRunaway = false }) {
 
     // --- Animation Loop ---
     let animId;
-    let lastTime = performance.now();
+    let lastTime = null;
     const startTime = performance.now();
     let pathProgress = 0;
 
-    const render = (currentTime = performance.now()) => {
-      const delta = Math.min((currentTime - lastTime) / 1000, 0.1);
-      lastTime = currentTime;
-      const elapsed = (currentTime - startTime) / 1000;
+    const render = (currentTime) => {
+      const now = typeof currentTime === 'number' ? currentTime : performance.now();
+      if (lastTime === null) {
+        lastTime = now;
+      }
+      const rawDelta = (now - lastTime) / 1000;
+      const delta = Math.max(0, Math.min(isNaN(rawDelta) ? 0.016 : rawDelta, 0.1));
+      lastTime = now;
+      const elapsed = (now - startTime) / 1000;
       const isPanic = runawayRef.current;
 
       // 1. Smooth Camera Orbit Dampening
@@ -345,8 +350,18 @@ export default function InteractiveLaserCanvas({ isThermalRunaway = false }) {
 
       // 2. Advance Toolhead along G-Code Toolpath
       const toolheadSpeed = isPanic ? 0.09 : 0.035;
-      pathProgress = (pathProgress + delta * toolheadSpeed) % 1.0;
-      const nozzlePos = toolpathCurve.getPointAt(pathProgress);
+      pathProgress = ((pathProgress + delta * toolheadSpeed) % 1.0 + 1.0) % 1.0;
+      // Clamp strictly within [0, 0.999999] so Three.js getLengths() index never overshoots arcLengths bounds
+      const safeProgress = Math.max(0, Math.min(0.999999, isNaN(pathProgress) ? 0 : pathProgress));
+      let nozzlePos;
+      try {
+        nozzlePos = toolpathCurve.getPointAt(safeProgress);
+      } catch {
+        nozzlePos = toolpathCurve.getPoint(safeProgress);
+      }
+      if (!nozzlePos) {
+        nozzlePos = new THREE.Vector3(0, 0, 0);
+      }
 
       toolheadGroup.position.copy(nozzlePos);
 
@@ -401,7 +416,7 @@ export default function InteractiveLaserCanvas({ isThermalRunaway = false }) {
       animId = requestAnimationFrame(render);
     };
 
-    render();
+    animId = requestAnimationFrame(render);
 
     // --- Window Resize Handler ---
     const handleResize = () => {

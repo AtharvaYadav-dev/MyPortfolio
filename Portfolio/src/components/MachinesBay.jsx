@@ -26,7 +26,7 @@ gsap.registerPlugin(ScrollTrigger);
 // Replace 'null' with your video/gif path (e.g. "/videos/svnit_hardware.mp4")
 // When null, the system automatically runs the high-fidelity interactive digital twin simulation!
 // ============================================================================
-export const HARDWARE_MEDIA_DROPZONE = {
+const HARDWARE_MEDIA_DROPZONE = {
   machine01_svnit: null,     // Example: "/videos/svnit_thermal_daq.mp4"
   machine02_bio4d: null,     // Example: "/videos/bio4d_printer.mp4"
   machine03_galvo: null,     // Example: "/videos/galvo_laser.mp4"
