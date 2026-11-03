@@ -308,6 +308,11 @@ export default function InteractiveLaserCanvas({ isThermalRunaway = false }) {
     let pathProgress = 0;
 
     const render = (currentTime) => {
+      if (document.hidden) {
+        animId = requestAnimationFrame(render);
+        return;
+      }
+
       const now = typeof currentTime === 'number' ? currentTime : performance.now();
       if (lastTime === null) {
         lastTime = now;

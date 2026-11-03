@@ -1,6 +1,7 @@
 import React from 'react';
 import { Cpu, ShieldCheck, ArrowUp, ExternalLink } from 'lucide-react';
 import { soundEngine } from '../utils/soundEngine';
+import { smoothScrollTo } from '../utils/scrollHelper';
 
 function GithubIcon({ className = 'w-3.5 h-3.5' }) {
   return (
@@ -13,7 +14,7 @@ function GithubIcon({ className = 'w-3.5 h-3.5' }) {
 export default function FooterHUD() {
   const scrollToTop = () => {
     soundEngine.playRelayClick();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    smoothScrollTo(0);
   };
 
   return (

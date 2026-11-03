@@ -1,21 +1,37 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Shield, ChevronDown, Terminal, Cpu, ArrowUpRight, Zap, Target } from 'lucide-react';
+import {
+  Shield,
+  ChevronDown,
+  Terminal,
+  Cpu,
+  ArrowUpRight,
+  Zap,
+  Target,
+  FileText,
+  Mail,
+} from 'lucide-react';
 import ScrambleText from './ScrambleText';
-import { cyberAudio } from '../utils/audio';
+import HeroTelemetryCanvas from './HeroTelemetryCanvas';
 import { soundEngine } from '../utils/soundEngine';
+import { smoothScrollTo } from '../utils/scrollHelper';
 
-export default function HeroSection() {
+export default function HeroSection({
+  onOpenResume,
+  onOpenContact,
+  onToggleTerminal,
+  onSelectDomain,
+}) {
   const scrollTo = (id) => {
-    cyberAudio.playRelayClick();
-    const el = document.getElementById(id);
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
-    }
+    soundEngine.playRelayClick();
+    smoothScrollTo(id);
   };
 
   return (
-    <section id="hero" className="relative min-h-screen flex flex-col justify-between pt-28 pb-12 px-4 md:px-8 max-w-7xl mx-auto z-10">
+    <section
+      id="hero"
+      className="relative min-h-screen flex flex-col justify-between pt-28 pb-12 px-4 md:px-8 max-w-7xl mx-auto z-10 space-y-10"
+    >
       {/* Top Telemetry Strip */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
@@ -26,7 +42,7 @@ export default function HeroSection() {
         <div className="flex items-center gap-3">
           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-cyan-950/70 border border-cyan-500/40 text-cyan-300">
             <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
-            <ScrambleText text="OS_KERNEL: ACTIVE // STM32H7" />
+            <ScrambleText text="OS_KERNEL: ACTIVE // STM32H7 CORTEX-M7" />
           </span>
           <span className="text-slate-400 hidden sm:inline">
             FIRMWARE R&amp;D ENGINEER @ SPECIALISE PRODUCTS (SPPL)
@@ -44,74 +60,129 @@ export default function HeroSection() {
           </div>
           <div className="flex items-center gap-1.5 text-emerald-400 font-bold">
             <Shield className="w-3.5 h-3.5" />
-            <span>IWDG: ARMED</span>
+            <span>IWDG: ARMED &lt;500µs</span>
           </div>
         </div>
       </motion.div>
 
-      {/* Main Kinetic Typography & Positioning */}
-      <div className="my-auto py-12 md:py-16">
-        <div className="mb-4 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-950/40 border border-cyan-500/30 text-xs font-mono text-cyan-300">
-          <Target className="w-3.5 h-3.5 text-cyan-400" />
-          <span>EMBEDDED SYSTEMS &amp; INDUSTRIAL AUTOMATION</span>
+      {/* Main Mission Control Hero Headline & Technical Positioning */}
+      <div className="space-y-6">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-950/50 border border-cyan-500/40 text-xs font-mono text-cyan-300 shadow-[0_0_15px_rgba(6,182,212,0.2)]">
+          <Target className="w-3.5 h-3.5 text-cyan-400 animate-pulse" />
+          <span>CYBER-PHYSICAL MISSION CONTROL // EMBEDDED R&amp;D TERMINAL</span>
         </div>
 
-        <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-display font-extrabold tracking-tight leading-[0.95] text-slate-100 uppercase">
-          <span className="block text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-100 to-slate-400">
-            BARE-METAL
+        {/* Hero Title Required: "Architecting Cyber-Physical Systems: Silicon-to-Screen." */}
+        <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-extrabold tracking-tight leading-[1.05] text-slate-100 uppercase">
+          <span className="block text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-100 to-slate-300">
+            Architecting Cyber-Physical Systems:
           </span>
-          <span className="block text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-cyan-300 to-teal-200 text-glow-cyan">
-            SILICON.
-          </span>
-          <span className="block text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-200 to-amber-200">
-            CLOSED-LOOP
-          </span>
-          <span className="block text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-300 to-orange-400 text-glow-amber">
-            KINEMATICS.
-          </span>
-          <span className="block text-2xl sm:text-4xl md:text-5xl lg:text-6xl text-slate-400 font-normal tracking-wide mt-2">
-            ZERO-LATENCY CONTROL.
+          <span className="block text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-teal-300 to-emerald-400 text-glow-cyan mt-1">
+            Silicon-to-Screen.
           </span>
         </h1>
 
-        <p className="mt-8 max-w-3xl text-sm sm:text-base md:text-lg font-mono text-slate-300 leading-relaxed border-l-2 border-cyan-500/50 pl-4 py-1">
-          I am <span className="text-cyan-300 font-bold">Atharva Yadav</span>. I architect hard real-time firmware,
-          high-precision motion control, and headless Automated Test Equipment (ATE) for mission-critical industrial
-          hardware. Bridging low-level register silicon with high-performance PySide6/PyOpenGL supervisory twins.
+        {/* Hero Sub-headline Required */}
+        <p className="max-w-4xl text-sm sm:text-base md:text-lg font-mono text-slate-200 leading-relaxed border-l-2 border-cyan-500/60 pl-4 py-1">
+          <span className="text-cyan-300 font-bold">
+            R&amp;D Firmware &amp; Embedded Systems Engineer
+          </span>{' '}
+          specializing in{' '}
+          <span className="text-white font-semibold">Bare-Metal C/C++ (STM32/ESP32)</span>,{' '}
+          <span className="text-amber-300 font-semibold">Sub-pF Precision Instrumentation</span>,{' '}
+          <span className="text-cyan-300 font-semibold">High-Power Industrial Lasers</span>, and{' '}
+          <span className="text-emerald-300 font-semibold">Multi-Threaded ATE/HIL Suites</span>.
         </p>
 
-        {/* Action Triggers */}
-        <div className="mt-10 flex flex-wrap items-center gap-4">
+        {/* Primary Action Button Cluster */}
+        <div className="flex flex-wrap items-center gap-3 pt-2">
           <button
             onClick={() => scrollTo('machines')}
             onMouseEnter={() => soundEngine.playHoverBlip()}
-            data-target="INSPECT"
-            className="group px-6 py-3.5 rounded bg-cyan-500 hover:bg-cyan-400 text-black font-display font-bold text-sm tracking-wider transition-all flex items-center gap-3 glow-cyan cursor-pointer"
+            className="px-6 py-3.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-black font-display font-bold text-xs sm:text-sm tracking-wider transition-all flex items-center gap-2.5 glow-cyan cursor-pointer"
           >
             <span>[INSPECT_8_R&D_SYSTEMS]</span>
-            <ArrowUpRight className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+            <ArrowUpRight className="w-4 h-4" />
           </button>
 
-          <button
-            onClick={() => scrollTo('uart-terminal')}
-            onMouseEnter={() => soundEngine.playHoverBlip()}
-            data-target="TERMINAL"
-            className="px-6 py-3.5 rounded bg-slate-900/80 hover:bg-slate-800 border border-cyan-500/40 hover:border-cyan-400 text-cyan-300 font-mono text-sm tracking-wider transition-all flex items-center gap-2 cursor-pointer"
-          >
-            <Terminal className="w-4 h-4 text-cyan-400" />
-            <span>[EXECUTE_UART_CONSOLE]</span>
-          </button>
+          {onOpenResume && (
+            <button
+              onClick={() => {
+                soundEngine.playTabLock();
+                onOpenResume();
+              }}
+              onMouseEnter={() => soundEngine.playHoverBlip()}
+              className="px-5 py-3.5 rounded-lg bg-slate-900/90 hover:bg-slate-800 border border-cyan-500/50 hover:border-cyan-400 text-cyan-300 font-mono text-xs sm:text-sm tracking-wider transition-all flex items-center gap-2 cursor-pointer shadow-[0_0_15px_rgba(6,182,212,0.15)]"
+            >
+              <FileText className="w-4 h-4 text-cyan-400" />
+              <span>[VIEW_ATS_RESUME]</span>
+            </button>
+          )}
 
-          <button
-            onClick={() => scrollTo('architecture')}
-            onMouseEnter={() => soundEngine.playHoverBlip()}
-            data-target="SCHEMATIC"
-            className="px-5 py-3.5 rounded bg-transparent hover:bg-cyan-950/30 border border-slate-700 hover:border-slate-500 text-slate-400 hover:text-slate-200 font-mono text-xs tracking-wider transition-all cursor-pointer"
-          >
-            <span>// VIEW_PCB_SCHEMATIC</span>
-          </button>
+          {onToggleTerminal && (
+            <button
+              onClick={() => {
+                soundEngine.playTabLock();
+                onToggleTerminal();
+              }}
+              onMouseEnter={() => soundEngine.playHoverBlip()}
+              className="px-5 py-3.5 rounded-lg bg-slate-900/90 hover:bg-slate-800 border border-slate-700 hover:border-slate-500 text-slate-300 font-mono text-xs sm:text-sm tracking-wider transition-all flex items-center gap-2 cursor-pointer"
+            >
+              <Terminal className="w-4 h-4 text-cyan-400" />
+              <span>[&gt;_ TERMINAL]</span>
+            </button>
+          )}
+
+          {onOpenContact && (
+            <button
+              onClick={() => {
+                soundEngine.playRelayClick();
+                onOpenContact();
+              }}
+              onMouseEnter={() => soundEngine.playHoverBlip()}
+              className="px-5 py-3.5 rounded-lg bg-emerald-950/70 hover:bg-emerald-900/80 border border-emerald-500/50 hover:border-emerald-400 text-emerald-300 font-mono text-xs sm:text-sm tracking-wider transition-all flex items-center gap-2 cursor-pointer"
+            >
+              <Mail className="w-4 h-4 text-emerald-400" />
+              <span>[CONTACT_ATHARVA]</span>
+            </button>
+          )}
         </div>
+
+        {/* Recruiter Quick Filter Shortcuts in Hero */}
+        {onSelectDomain && (
+          <div className="flex flex-wrap items-center gap-2 pt-1 text-[11px] font-mono text-slate-400">
+            <span className="text-cyan-400 font-bold uppercase text-[10px]">QUICK DOMAIN MODE:</span>
+            {[
+              { id: 'ev', label: 'EV & Battery HIL' },
+              { id: 'defense', label: 'Defense & EO/IR' },
+              { id: 'laser', label: 'Industrial Lasers' },
+              { id: 'robotics', label: 'Robotics Kinematics' },
+            ].map((d) => (
+              <button
+                key={d.id}
+                onClick={() => {
+                  soundEngine.playTabLock();
+                  onSelectDomain(d.id);
+                }}
+                onMouseEnter={() => soundEngine.playHoverBlip()}
+                className="px-2 py-0.5 rounded bg-slate-900/80 hover:bg-cyan-950 border border-slate-800 hover:border-cyan-400 text-slate-300 hover:text-cyan-300 transition-colors cursor-pointer"
+              >
+                [{d.label}]
+              </button>
+            ))}
+          </div>
+        )}
       </div>
+
+      {/* Embedded Live Simulated Interactive Telemetry Widget (Pillar 2) */}
+      <motion.div
+        initial={{ opacity: 0, y: 25 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, delay: 0.4 }}
+        className="w-full"
+      >
+        <HeroTelemetryCanvas />
+      </motion.div>
 
       {/* Bottom Hardware Metrics & Scroll Prompt */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-6 border-t border-cyan-500/20 text-xs font-mono">
@@ -139,7 +210,7 @@ export default function HeroSection() {
           data-target="SCROLL_DOWN"
           className="flex items-center gap-2 text-cyan-400/80 hover:text-cyan-300 transition-colors animate-bounce cursor-pointer self-center sm:self-auto"
         >
-          <span className="text-[11px] tracking-widest font-mono">[SCROLL_TO_INSPECT]</span>
+          <span className="text-[11px] tracking-widest font-mono">[SCROLL_TO_INSPECT_SYSTEMS]</span>
           <ChevronDown className="w-4 h-4" />
         </button>
       </div>

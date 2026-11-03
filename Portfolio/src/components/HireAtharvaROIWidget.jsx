@@ -8,6 +8,7 @@ import {
   DollarSign
 } from 'lucide-react';
 import { soundEngine } from '../utils/soundEngine';
+import { smoothScrollTo } from '../utils/scrollHelper';
 
 /**
  * Interactive "Why Hire Atharva" ROI & 3-in-1 Role Consolidation Widget
@@ -30,7 +31,7 @@ export default function HireAtharvaROIWidget() {
 
   const scrollToTerminal = () => {
     soundEngine.playRelayClick();
-    document.getElementById('uart-terminal')?.scrollIntoView({ behavior: 'smooth' });
+    smoothScrollTo('uart-terminal');
   };
 
   return (

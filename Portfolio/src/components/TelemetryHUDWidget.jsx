@@ -5,7 +5,8 @@ import {
   Sliders,
   Minimize2,
   Maximize2,
-  Radio
+  Radio,
+  X
 } from 'lucide-react';
 import { soundEngine } from '../utils/soundEngine';
 
@@ -19,7 +20,12 @@ import { soundEngine } from '../utils/soundEngine';
  * - [⚡ INJECT THERMAL RUNAWAY] with industrial strobe & automatic 2s watchdog recovery
  * - Real-time sliders for PID Kp, Ki, Kd and Laser PWM Duty Cycle (%)
  */
-export default function TelemetryHUDWidget({ isThermalRunaway, setIsThermalRunaway }) {
+export default function TelemetryHUDWidget({
+  isThermalRunaway,
+  setIsThermalRunaway,
+  isOpen = true,
+  onClose,
+}) {
   const [isMinimized, setIsMinimized] = useState(false);
   const [isExpandedBench, setIsExpandedBench] = useState(false);
 
@@ -123,6 +129,11 @@ export default function TelemetryHUDWidget({ isThermalRunaway, setIsThermalRunaw
     const ch4History = new Array(historyLength).fill(1);
 
     const render = () => {
+      if (document.hidden) {
+        animId = requestAnimationFrame(render);
+        return;
+      }
+
       stateRef.current.time += 0.05;
       const { time, isThermalRunaway: panic, kp: pKp, ki: pKi, kd: pKd, laserDuty: pDuty, watchdogActive: pWd } =
         stateRef.current;
@@ -329,12 +340,14 @@ export default function TelemetryHUDWidget({ isThermalRunaway, setIsThermalRunaw
     return () => cancelAnimationFrame(animId);
   }, []);
 
+  if (!isOpen) return null;
+
   return (
     <motion.div
       drag
-      dragMomentum={false}
+  dragMomentum={false}
       initial={{ x: 0, y: 0 }}
-      className={`fixed bottom-4 right-4 z-40 transition-shadow ${
+      className={`fixed bottom-4 left-4 sm:left-6 z-30 transition-shadow ${
         isThermalRunaway ? 'glow-red' : 'glow-cyan-sm'
       }`}
       style={{ touchAction: 'none' }}
@@ -393,6 +406,18 @@ export default function TelemetryHUDWidget({ isThermalRunaway, setIsThermalRunaw
             >
               {isMinimized ? <Maximize2 className="w-3 h-3" /> : <Minimize2 className="w-3 h-3" />}
             </button>
+            {onClose && (
+              <button
+                onClick={() => {
+                  soundEngine.playHoverBlip();
+                  onClose();
+                }}
+                className="p-1 text-slate-400 hover:text-red-400 transition-colors"
+                title="Hide Telemetry Bench"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
           </div>
         </div>
 

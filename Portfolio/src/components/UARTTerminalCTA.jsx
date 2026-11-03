@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Terminal, Send, Mail, Download, MapPin, CheckCircle, ExternalLink, Sparkles } from 'lucide-react';
-import { cyberAudio } from '../utils/audio';
+import { Terminal, Send, Mail, MapPin, CheckCircle, ExternalLink, Sparkles, FileText } from 'lucide-react';
 import { soundEngine } from '../utils/soundEngine';
+import { downloadATSResume } from '../utils/resumeData';
 
 function GithubIcon({ className = 'w-4 h-4' }) {
   return (
@@ -12,13 +12,17 @@ function GithubIcon({ className = 'w-4 h-4' }) {
 }
 
 const INITIAL_TERMINAL_OUTPUT = [
-  'UART_BUS_COM3: ACTIVE (BAUD 115200 8-N-1)',
+  'UART_BUS_COM3: ACTIVE (BAUD 115200 8-N-1 // HARD REAL-TIME)',
   'FIRMWARE_CORE: ATHARVA_YADAV // R&D EMBEDDED SYSTEMS',
   'TYPE "help" OR CLICK COMMAND CHIPS TO TRANSMIT INSTRUCTIONS.',
   '-----------------------------------------------------------------',
 ];
 
-export default function UARTTerminalCTA() {
+export default function UARTTerminalCTA({
+  onOpenResume,
+  onOpenContact,
+  onSelectDomain,
+}) {
   const [inputVal, setInputVal] = useState('');
   const [history, setHistory] = useState(INITIAL_TERMINAL_OUTPUT);
   const bottomRef = useRef(null);
@@ -30,7 +34,7 @@ export default function UARTTerminalCTA() {
 
   const executeCommand = (cmdText) => {
     const trimmed = cmdText.trim().toLowerCase();
-    cyberAudio.playRelayClick();
+    soundEngine.playRelayClick();
 
     const newHistory = [...history, `user@com3:~$ ${cmdText}`];
 
@@ -39,25 +43,88 @@ export default function UARTTerminalCTA() {
       return;
     }
 
-    switch (trimmed) {
+    const [cmd, ...args] = trimmed.split(' ');
+
+    switch (cmd) {
       case 'help':
         newHistory.push(
-          'AVAILABLE COMMANDS:',
+          'AVAILABLE HARDWARE R&D COMMANDS:',
           '  hire          - Execute recruitment protocol & initiate transmission',
-          '  github        - Open official GitHub profile (AtharvaYadav-dev)',
+          '  view_resume   - Open single-page ATS verified candidate resume',
+          '  system_stats  - cat system_stats.log (CPU load, clocks, DMA, temps, IWDG)',
+          '  run_pid_sim   - Simulate 100Hz closed-loop step response with ASCII telemetry',
+          '  run_gcode     - Parse G-code kinematics & toolpath velocity vectors',
+          '  ping_stm32    - Test hardware bus round-trip latency & jitter',
+          '  domain <name> - Switch recruiter mode (ev, defense, laser, robotics, all)',
           '  projects      - List the 8 R&D industrial machines across 2 series',
-          '  series_a      - Inspect Series A: BARC Bridge, SVNIT DAQ, Bio4D',
-          '  series_b      - Inspect Series B: SPPL Photonics, Wafer Lasers, LWIR',
-          '  inkprinter    - Open InkPrinter (Bio4D V2) Bioprinter repo',
-          '  galvo         - Open Galvo_Scriber laser controller repo',
-          '  metal3d       - Open Metal3-D additive kinematics repo',
-          '  linkedin      - Connect with Atharva on LinkedIn',
+          '  github        - Open official GitHub profile (AtharvaYadav-dev)',
           '  cv            - Download ATS-optimized Industrial Firmware Engineer CV',
-          '  contact       - Reveal direct email & location',
-          '  skills        - Print low-level embedded registers & tech stack',
-          '  ping          - Test hardware bus round-trip latency',
           '  clear         - Wipe serial terminal buffer'
         );
+        break;
+
+      case 'system_stats':
+      case 'stats':
+        newHistory.push(
+          '====================================================================',
+          'HARDWARE TELEMETRY LOG: system_stats.log',
+          '====================================================================',
+          '  CPU ARCHITECTURE:   ARM Cortex-M7 @ 480.000 MHz (SysTick 1ms)',
+          '  DMA CONTROLLER:     DMA2 Stream0 [CIRCULAR_BURST, 4x Oversample]',
+          '  ADC SCAN RATE:      2,000 SPS (16-Channels, 12-bit Resolution)',
+          '  CLOSED-LOOP PID:    100.000 Hz Hard Real-Time (TIM6 ISR)',
+          '  WATCHDOG STATUS:    IWDG ARMED (Hardware Cutoff: < 500 µs)',
+          '  SYSTEM TEMPERATURE: 38.4 °C (Gradient: +0.02 °C/s [NOMINAL])',
+          '  RTOS HEAP USAGE:    14.2 KB / 128.0 KB (11.0% Allocation)',
+          '  SERIAL COMM BUS:    USART1 115200 8-N-1 // M118 Lockstep Active',
+          '===================================================================='
+        );
+        break;
+
+      case 'run_pid_sim':
+      case 'pid':
+        newHistory.push(
+          '-> INITIATING 100Hz CLOSED-LOOP PID SIMULATION (MPX5700 TRANSDUCER)...',
+          '-> TARGET SETPOINT: 340.0 kPa | INITIAL PRESSURE: 100.0 kPa',
+          '   t=0.00s | PV: 100.0 kPa | Err: +240.0 kPa | PWM: 100.0%  [░░░░░░░░░░]',
+          '   t=0.02s | PV: 185.4 kPa | Err: +154.6 kPa | PWM:  88.5%  [██░░░░░░░░]',
+          '   t=0.04s | PV: 295.1 kPa | Err:  +44.9 kPa | PWM:  52.1%  [██████░░░░]',
+          '   t=0.06s | PV: 352.8 kPa | Err:  -12.8 kPa | PWM:  24.3%  [█████████░] (Overshoot 3.7%)',
+          '   t=0.08s | PV: 341.2 kPa | Err:   -1.2 kPa | PWM:  35.8%  [██████████]',
+          '   t=0.10s | PV: 340.0 kPa | Err:    0.0 kPa | PWM:  35.2%  [██████████] (Settled in 84ms)',
+          '-> RESULT: CLOSED-LOOP DETERMINISTIC CONVERGENCE ACHIEVED. STEADY ERROR = 0.00%'
+        );
+        break;
+
+      case 'run_gcode':
+      case 'gcode':
+        newHistory.push(
+          '-> PARSING G-CODE TOOLPATH & KINEMATICS ACCELERATION VECTOR...',
+          '   [N001] G21                ; Metric Mode [OK]',
+          '   [N002] G90                ; Absolute Positioning [OK]',
+          '   [N003] M118 SYNC_LOCKSTEP ; Handshake with PyOpenGL Twin [ACK_RECVD]',
+          '   [N004] G00 X0.00 Y0.00 Z5.00 F6000 ; Rapid Traverse [VEL_MAX: 100 mm/s]',
+          '   [N005] G01 Z0.15 F600     ; Plunge to Substrate [OK]',
+          '   [N006] M106 S180          ; Enable Pneumatic Valve 340.0 kPa [PID_LOCKED]',
+          '   [N007] G01 X45.00 Y30.00 E2.48 F2400 ; Extrude Bio-Ink [TRAPEZOIDAL_OK]',
+          '-> KINEMATICS STATUS: 16-BLOCK LOOKAHEAD BUFFER EXECUTED WITH ZERO STEP LOSS.'
+        );
+        break;
+
+      case 'view_resume':
+      case 'resume':
+        newHistory.push('-> LAUNCHING VERIFIED ATS RESUME DOSSIER MODAL...');
+        if (onOpenResume) onOpenResume();
+        break;
+
+      case 'domain':
+        const targetDomain = args[0];
+        if (['ev', 'defense', 'laser', 'robotics', 'all'].includes(targetDomain)) {
+          newHistory.push(`-> SWITCHING RECRUITER MODE TO: [${targetDomain.toUpperCase()}]`);
+          if (onSelectDomain) onSelectDomain(targetDomain);
+        } else {
+          newHistory.push('ERR: SPECIFY DOMAIN AS: ev, defense, laser, robotics, OR all');
+        }
         break;
 
       case 'projects':
@@ -112,13 +179,16 @@ export default function UARTTerminalCTA() {
       case 'execute_hire_protocol':
       case 'contact':
         newHistory.push(
-          '-> INITIATING HIRE PROTOCOL...',
+          '-> INITIATING DIRECT RECRUITER TRANSMISSION PROTOCOL...',
           '-> TARGET CANDIDATE: Atharva Yadav',
           '-> LOCATION: Mumbai, India (Open to Relocation: BLR / Pune / Mumbai)',
-          '-> DIRECT EMAIL: atharvayadav.dev@gmail.com',
-          '-> DISPATCHING TRANSMISSION CHANNEL VIA DEFAULT CLIENT...'
+          '-> DIRECT EMAIL: atharvayadav.dev@gmail.com'
         );
-        window.open('mailto:atharvayadav.dev@gmail.com?subject=Industrial%20Firmware%20R%26D%20Opportunity%20-%20Atharva%20Yadav', '_blank');
+        if (onOpenContact) {
+          onOpenContact();
+        } else {
+          window.open('mailto:atharvayadav.dev@gmail.com?subject=Industrial%20Firmware%20R%26D%20Opportunity%20-%20Atharva%20Yadav', '_blank');
+        }
         break;
 
       case 'github':
@@ -129,13 +199,34 @@ export default function UARTTerminalCTA() {
         break;
 
       case 'cv':
-      case 'resume':
+      case 'download_resume':
       case 'download_ats_cv':
         newHistory.push(
-          '-> GENERATING ATS INDUSTRIAL FIRMWARE RESUME DOSSIER...',
-          '-> DOWNLOAD INITIATED (PDF FORMAT).'
+          '-> GENERATING VERIFIED ATS INDUSTRIAL FIRMWARE RESUME DOSSIER...',
+          '-> DOWNLOAD INITIATED (TXT FORMAT).'
         );
         triggerCVDownload();
+        break;
+
+      case 'registers':
+      case 'registers.h':
+        newHistory.push(
+          '// STM32H743xI HARDWARE MEMORY MAP REGISTERS:',
+          '#define RCC_CR_HSION_BB        0x42000000U',
+          '#define DMA2_STREAM0_CR        (*(volatile uint32_t*)0x40026410U)',
+          '#define ADC1_SMPR1             (*(volatile uint32_t*)0x4002200cU)',
+          '#define TIM6_CR1_CEN           (1U << 0)  // 100Hz Hardware Counter Enable',
+          '#define IWDG_KEY_RELOAD        0x0000AAAA // Watchdog Refresh Vector'
+        );
+        break;
+
+      case 'whoami':
+        newHistory.push(
+          'ATHARVA YADAV // R&D FIRMWARE & EMBEDDED SYSTEMS ENGINEER',
+          '  Current Role:  Firmware Developer @ Specialise Products (SPPL, Mumbai)',
+          '  Specialism:    Bare-Metal C/C++ (STM32/ESP32), Sub-pF Instrumentation, Galvo Lasers',
+          '  Credentials:   MCA (AI/ML) + B.Sc. IT | Relocation: Bangalore / Pune / Mumbai'
+        );
         break;
 
       case 'skills':
@@ -149,11 +240,12 @@ export default function UARTTerminalCTA() {
         break;
 
       case 'ping':
+      case 'ping_stm32':
         newHistory.push(
           '-> PINGING HARDWARE DMA SUB-SYSTEM...',
-          '-> 64 bytes from 127.0.0.1: time=0.084 ms',
-          '-> 64 bytes from 127.0.0.1: time=0.062 ms',
-          '-> ROUND-TRIP JITTER: ±0.012 ms (DETERMINISTIC HARD REAL-TIME)'
+          '-> 64 bytes from 127.0.0.1: time=0.068 ms',
+          '-> 64 bytes from 127.0.0.1: time=0.071 ms',
+          '-> ROUND-TRIP JITTER: ±0.004 ms (DETERMINISTIC HARD REAL-TIME)'
         );
         break;
 
@@ -179,72 +271,23 @@ export default function UARTTerminalCTA() {
     if (e.key === 'Enter') {
       executeCommand(inputVal);
     } else {
-      cyberAudio.playHoverTick();
+      soundEngine.playHoverTick();
     }
   };
 
   const triggerCVDownload = () => {
-    // Generate clean downloadable text/markdown CV file if PDF asset is pending
-    const cvText = `========================================================================
-ATHARVA YADAV — INDUSTRIAL FIRMWARE & EMBEDDED SYSTEMS ENGINEER
-Location: Mumbai, India | Relocation: Bangalore / Pune / Mumbai
-GitHub: https://github.com/AtharvaYadav-dev
-Email: atharvayadav.dev@gmail.com
-========================================================================
-
-PROFESSIONAL EXPERIENCE:
-------------------------------------------------------------------------
-FIRMWARE DEVELOPER (R&D — IoT & Embedded Systems)
-Specialise Products Pvt. Ltd. (SPPL), Mumbai | 2026 – Present
-(Promoted from Graduate Engineer Trainee)
-• Architected hard real-time firmware in bare-metal C++ on STM32 microcontrollers with circular DMA buffers and sub-millisecond ADC interrupt scanning.
-• Designed and deployed headless Automated Test Equipment (ATE) integrating multi-threaded PySide6 desktop supervisory UIs with PyOpenGL 3D digital twins.
-• Developed custom M118 dual-MCU lockstep communication protocol for multi-axis industrial 3D bioprinters with 100Hz deterministic PID pneumatic pressure regulation.
-• Engineered sub-microsecond DB25 parallel port hardware gating for Galvo laser vector scribing engines using low-level Win32 DLL interfacing (MarkEzd.dll).
-
-FLAGSHIP EMBEDDED & INDUSTRIAL SYSTEMS:
-------------------------------------------------------------------------
-1. SVNIT 16-Channel Thermal DAQ & Safety Watchdog:
-   STM32 DMA/ADC, 16-Channel 12-bit Thermistor Array, Active Thermal Gradient Tracking, Hardware Watchdog (IWDG) Emergency Cutoff, Multi-Threaded PySide6 UI.
-
-2. Bio4D V2 — Industrial 3D Bioprinter & Pneumatic PID:
-   Dual-MCU Lockstep Synchronization (Custom M118 Protocol), 100Hz Deterministic PID Loop, MPX5700 Pressure Transducer, PySide6 + PyOpenGL Real-Time Digital Twin.
-
-3. Galvo Laser Scribing & Microsecond DB25 Gating:
-   Bare-Metal C/C++, Win32 MarkEzd.dll, DB25 Parallel Hardware Gating, Microsecond Geometric Vector Transformations.
-
-EDUCATION:
-------------------------------------------------------------------------
-• Master of Computer Applications (MCA) — AI & Machine Learning | 2026 – 2028
-  Dr. D. Y. Patil Vidyapeeth
-• B.Sc. in Information Technology | 2026
-  Thakur College of Science & Commerce, Mumbai
-
-CORE TECHNICAL SKILLS:
-------------------------------------------------------------------------
-Languages: Bare-Metal C/C++, Python (PySide6, PyQt, PyOpenGL), C# (.NET Win32 DLL)
-Hardware: STM32 (ARM Cortex-M7), DMA Controllers, Timers/PWM, ADC, Watchdogs (IWDG/WWDG)
-Protocols: UART/RS-485, SPI, I2C, DB25 Parallel Port, Custom M-Code/M118 Frames
-Control Systems: Deterministic PID Loops, 100Hz Sensor Feedback, Anti-Windup, Signal Filtering
-`;
-    const blob = new Blob([cvText], { type: 'text/plain;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'Atharva_Yadav_Firmware_Engineer_CV.txt';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    soundEngine.playHoverBlip();
+    downloadATSResume();
   };
 
   return (
     <section id="uart-terminal" className="relative z-10 py-24 px-4 md:px-8 max-w-7xl mx-auto">
-      {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-cyan-500/20 pb-4 mb-10">
+      {/* Section Header */}
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-cyan-500/20 pb-4 mb-8">
         <div>
           <div className="text-xs font-mono text-cyan-400 tracking-widest flex items-center gap-2 mb-1">
             <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
-            <span>06 // UART_IO // FULL_DUPLEX_COMMAND</span>
+            <span>06 // FINALE // UART_IO &amp; RECRUITER TRANSMISSION</span>
           </div>
           <h2 className="text-3xl md:text-4xl font-display font-extrabold text-slate-100 tracking-wide uppercase">
             UART SERIAL TERMINAL &amp; COMM PROTOCOL
@@ -305,13 +348,13 @@ Control Systems: Deterministic PID Loops, 100Hz Sensor Feedback, Anti-Windup, Si
               value={inputVal}
               onChange={(e) => setInputVal(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder='Type "help", "hire", "cv", "github", or click chips below...'
+              placeholder='Type "help", "hire", "view_resume", "run_pid_sim", "run_gcode"...'
               className="flex-1 bg-transparent text-white focus:outline-none placeholder:text-slate-600"
             />
             <button
               onClick={() => executeCommand(inputVal)}
               data-target="SEND_CMD"
-              className="p-1.5 rounded bg-cyan-500 hover:bg-cyan-400 text-black transition-colors"
+              className="p-1.5 rounded bg-cyan-500 hover:bg-cyan-400 text-black transition-colors cursor-pointer"
             >
               <Send className="w-3.5 h-3.5" />
             </button>
@@ -321,46 +364,48 @@ Control Systems: Deterministic PID Loops, 100Hz Sensor Feedback, Anti-Windup, Si
           <div className="p-3 bg-slate-900/60 border-t border-slate-800 flex flex-wrap items-center gap-2 text-xs font-mono">
             <span className="text-slate-500 text-[10px] mr-1">QUICK TRANSMIT:</span>
             <button
-              onClick={() => handleChipClick('execute_hire_protocol')}
+              onClick={() => handleChipClick('hire')}
               onMouseEnter={() => soundEngine.playHoverBlip()}
-              data-target="HIRE"
               className="px-2.5 py-1 rounded bg-cyan-950/80 border border-cyan-500/40 text-cyan-300 hover:bg-cyan-500 hover:text-black font-bold transition-all cursor-pointer"
             >
               [&gt; EXECUTE_HIRE_PROTOCOL]
             </button>
             <button
-              onClick={() => handleChipClick('projects')}
+              onClick={() => handleChipClick('view_resume')}
               onMouseEnter={() => soundEngine.playHoverBlip()}
-              data-target="PROJECTS"
-              className="px-2.5 py-1 rounded bg-slate-800/80 border border-slate-700 text-cyan-300 hover:border-cyan-400 hover:text-white transition-all cursor-pointer"
+              className="px-2.5 py-1 rounded bg-slate-800/80 border border-slate-700 text-slate-300 hover:border-cyan-400 hover:text-white transition-all flex items-center gap-1 cursor-pointer"
             >
-              [&gt; LIST_PROJECTS]
+              <FileText className="w-3 h-3 text-cyan-400" />
+              [&gt; VIEW_ATS_RESUME]
             </button>
             <button
-              onClick={() => handleChipClick('open_github_repo')}
+              onClick={() => handleChipClick('run_pid_sim')}
               onMouseEnter={() => soundEngine.playHoverBlip()}
-              data-target="GITHUB"
-              className="px-2.5 py-1 rounded bg-slate-800/80 border border-slate-700 text-slate-300 hover:border-cyan-400 hover:text-white transition-all flex items-center gap-1.5 cursor-pointer"
+              className="px-2.5 py-1 rounded bg-amber-950/70 border border-amber-500/40 text-amber-300 hover:bg-amber-500 hover:text-black font-bold transition-all cursor-pointer"
+            >
+              [&gt; RUN_PID_SIM]
+            </button>
+            <button
+              onClick={() => handleChipClick('run_gcode')}
+              onMouseEnter={() => soundEngine.playHoverBlip()}
+              className="px-2.5 py-1 rounded bg-teal-950/70 border border-teal-500/40 text-teal-300 hover:bg-teal-500 hover:text-black font-bold transition-all cursor-pointer"
+            >
+              [&gt; RUN_GCODE]
+            </button>
+            <button
+              onClick={() => handleChipClick('system_stats')}
+              onMouseEnter={() => soundEngine.playHoverBlip()}
+              className="px-2.5 py-1 rounded bg-slate-800/80 border border-slate-700 text-slate-300 hover:border-cyan-400 hover:text-white transition-all cursor-pointer"
+            >
+              [&gt; SYSTEM_STATS]
+            </button>
+            <button
+              onClick={() => handleChipClick('github')}
+              onMouseEnter={() => soundEngine.playHoverBlip()}
+              className="px-2.5 py-1 rounded bg-slate-800/80 border border-slate-700 text-slate-300 hover:border-cyan-400 hover:text-white transition-all flex items-center gap-1 cursor-pointer"
             >
               <GithubIcon className="w-3 h-3 text-cyan-400" />
-              [&gt; GITHUB_REPOS]
-            </button>
-            <button
-              onClick={() => handleChipClick('download_ats_cv')}
-              onMouseEnter={() => soundEngine.playHoverBlip()}
-              data-target="DOWNLOAD_CV"
-              className="px-2.5 py-1 rounded bg-slate-800/80 border border-slate-700 text-slate-300 hover:border-amber-400 hover:text-white transition-all flex items-center gap-1.5 cursor-pointer"
-            >
-              <Download className="w-3 h-3 text-amber-400" />
-              [&gt; DOWNLOAD_CV]
-            </button>
-            <button
-              onClick={() => handleChipClick('skills')}
-              onMouseEnter={() => soundEngine.playHoverBlip()}
-              data-target="SKILLS"
-              className="px-2.5 py-1 rounded bg-slate-800/80 border border-slate-700 text-slate-400 hover:text-slate-200 transition-all cursor-pointer"
-            >
-              [&gt; PRINT_SKILLS]
+              [&gt; GITHUB]
             </button>
           </div>
         </div>
@@ -391,21 +436,40 @@ Control Systems: Deterministic PID Loops, 100Hz Sensor Feedback, Anti-Windup, Si
               <div className="flex items-start gap-2">
                 <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
                 <span>
-                  <strong>Target Domains:</strong> Autonomous Defense Systems, Robotics, Industrial Bio-Fabrication, Real-Time Embedded ATE.
+                  <strong>Target Domains:</strong> EV &amp; Battery HIL, Defense EO/IR, Industrial Lasers, Robotics Kinematics.
                 </span>
               </div>
             </div>
 
-            {/* Direct Email CTA Button */}
-            <a
-              href="mailto:atharvayadav.dev@gmail.com?subject=Industrial%20Firmware%20R%26D%20Opportunity%20-%20Atharva%20Yadav"
+            {/* Direct Contact Modal Trigger Button */}
+            <button
+              onClick={() => {
+                soundEngine.playRelayClick();
+                if (onOpenContact) onOpenContact();
+                else window.open('mailto:atharvayadav.dev@gmail.com', '_blank');
+              }}
               onMouseEnter={() => soundEngine.playHoverBlip()}
               data-target="TRANSMIT_EMAIL"
               className="w-full py-3 px-4 rounded bg-gradient-to-r from-cyan-500 to-teal-400 hover:from-cyan-400 hover:to-teal-300 text-black font-display font-bold text-xs tracking-wider transition-all flex items-center justify-center gap-2 glow-cyan cursor-pointer"
             >
               <Mail className="w-4 h-4" />
-              <span>[TRANSMIT_DIRECT_EMAIL]</span>
-            </a>
+              <span>[INITIATE_DIRECT_CONTACT]</span>
+            </button>
+
+            {/* Resume Trigger Button */}
+            {onOpenResume && (
+              <button
+                onClick={() => {
+                  soundEngine.playTabLock();
+                  onOpenResume();
+                }}
+                onMouseEnter={() => soundEngine.playHoverBlip()}
+                className="w-full py-2.5 px-4 rounded bg-slate-900/80 hover:bg-slate-800 border border-slate-700 hover:border-cyan-400 text-slate-200 font-mono text-xs tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <FileText className="w-3.5 h-3.5 text-cyan-400" />
+                <span>VIEW VERIFIED ATS RESUME</span>
+              </button>
+            )}
 
             {/* GitHub Profile Button */}
             <a

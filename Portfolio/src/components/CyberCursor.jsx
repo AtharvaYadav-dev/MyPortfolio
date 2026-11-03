@@ -74,6 +74,11 @@ export default function CyberCursor() {
     // High-performance direct RAF loop for outer ring and badge (Zero React state overhead!)
     let animId;
     const renderCursor = () => {
+      if (document.hidden) {
+        animId = requestAnimationFrame(renderCursor);
+        return;
+      }
+
       // Smooth interpolation for outer reticle
       lagPos.current.x += (mousePos.current.x - lagPos.current.x) * 0.22;
       lagPos.current.y += (mousePos.current.y - lagPos.current.y) * 0.22;

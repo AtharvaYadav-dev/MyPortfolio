@@ -10,6 +10,7 @@ import NavigationHUD from './components/NavigationHUD';
 import InteractiveLaserCanvas from './components/InteractiveLaserCanvas';
 import TelemetryHUDWidget from './components/TelemetryHUDWidget';
 import HeroSection from './components/HeroSection';
+import RecruiterQuickMode from './components/RecruiterQuickMode';
 import MachinesBay from './components/MachinesBay';
 import PCBArchitectureMatrix from './components/PCBArchitectureMatrix';
 import EngineerProfileBento from './components/EngineerProfileBento';
@@ -17,12 +18,25 @@ import HireAtharvaROIWidget from './components/HireAtharvaROIWidget';
 import CareerTelemetryTimeline from './components/CareerTelemetryTimeline';
 import UARTTerminalCTA from './components/UARTTerminalCTA';
 import FooterHUD from './components/FooterHUD';
+import CollapsibleTerminalDrawer from './components/CollapsibleTerminalDrawer';
+import ATSResumeModal from './components/ATSResumeModal';
+import QuickContactModal from './components/QuickContactModal';
+import { smoothScrollTo } from './utils/scrollHelper';
 
 gsap.registerPlugin(ScrollTrigger);
 
 export default function App() {
   const [bootComplete, setBootComplete] = useState(false);
   const [isThermalRunaway, setIsThermalRunaway] = useState(false);
+
+  // Recruiter Domain Quick-Mode State ('all' | 'ev' | 'defense' | 'laser' | 'robotics')
+  const [selectedDomain, setSelectedDomain] = useState('all');
+
+  // Recruiter Modals & Terminal States
+  const [isResumeModalOpen, setIsResumeModalOpen] = useState(false);
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+  const [isTerminalOpen, setIsTerminalOpen] = useState(false);
+  const [isTelemetryOpen, setIsTelemetryOpen] = useState(true);
 
   // Initialize Lenis Smooth Inertia Scrolling synced with GSAP Ticker
   useEffect(() => {
@@ -60,8 +74,20 @@ export default function App() {
     }, 100);
   };
 
+  const handleSelectDomain = (domainId) => {
+    setSelectedDomain(domainId);
+    // Smoothly scroll down to the machines section if selected from header
+    smoothScrollTo('machines');
+  };
+
   return (
-    <div className={`relative min-h-screen bg-[#030712] text-slate-100 overflow-x-hidden ${isThermalRunaway ? 'selection:bg-red-500 selection:text-white' : 'selection:bg-cyan-500 selection:text-black'}`}>
+    <div
+      className={`relative min-h-screen bg-[#030712] text-slate-100 overflow-x-hidden ${
+        isThermalRunaway
+          ? 'selection:bg-red-500 selection:text-white'
+          : 'selection:bg-cyan-500 selection:text-black'
+      }`}
+    >
       {/* Custom Cybernetic Dual-Layer Reticle Cursor */}
       <CyberCursor />
 
@@ -74,42 +100,97 @@ export default function App() {
       <InteractiveLaserCanvas isThermalRunaway={isThermalRunaway} />
 
       {/* Phase 0: High-Speed BIOS Boot-Up Preloader */}
-      {!bootComplete && (
-        <BootSequence onComplete={handleBootComplete} />
-      )}
+      {!bootComplete && <BootSequence onComplete={handleBootComplete} />}
 
       {/* Mission Control Top HUD */}
-      <NavigationHUD isThermalRunaway={isThermalRunaway} />
+      <NavigationHUD
+        isThermalRunaway={isThermalRunaway}
+        selectedDomain={selectedDomain}
+        onSelectDomain={handleSelectDomain}
+        onOpenResume={() => setIsResumeModalOpen(true)}
+        onOpenContact={() => setIsContactModalOpen(true)}
+        onToggleTerminal={() => setIsTerminalOpen(!isTerminalOpen)}
+        isTelemetryOpen={isTelemetryOpen}
+        onToggleTelemetry={() => setIsTelemetryOpen(!isTelemetryOpen)}
+      />
 
       {/* Floating Interactive Draggable Oscilloscope & PID Telemetry Pod */}
       <TelemetryHUDWidget
         isThermalRunaway={isThermalRunaway}
         setIsThermalRunaway={setIsThermalRunaway}
+        isOpen={isTelemetryOpen}
+        onClose={() => setIsTelemetryOpen(false)}
       />
 
       {/* Main Narrative Flow */}
       <main className="relative z-10">
-        {/* Hero Section */}
-        <HeroSection />
+        {/* 01. Hero Section (With Live 100Hz PID & 16-Ch Circular DMA Canvas) */}
+        <HeroSection
+          onOpenResume={() => setIsResumeModalOpen(true)}
+          onOpenContact={() => setIsContactModalOpen(true)}
+          onToggleTerminal={() => setIsTerminalOpen(!isTerminalOpen)}
+          onSelectDomain={handleSelectDomain}
+        />
 
-        {/* GSAP Pinned Scroll-Storytelling: The 3 Flagship Machines */}
-        <MachinesBay />
+        {/* Recruiter Domain Filter & Executive Briefing Strip */}
+        <section className="relative z-10 max-w-7xl mx-auto px-4 md:px-8 pt-8 pb-4">
+          <RecruiterQuickMode
+            selectedDomain={selectedDomain}
+            onSelectDomain={handleSelectDomain}
+            onOpenResume={() => setIsResumeModalOpen(true)}
+            onOpenContact={() => setIsContactModalOpen(true)}
+          />
+        </section>
 
-        {/* Interactive PCB Trace Architecture Matrix */}
+        {/* 02. GSAP Pinned Scroll-Storytelling: The 8 Flagship R&D Machines */}
+        <MachinesBay
+          selectedDomain={selectedDomain}
+          onSelectDomain={handleSelectDomain}
+          onOpenResume={() => setIsResumeModalOpen(true)}
+          onOpenContact={() => setIsContactModalOpen(true)}
+        />
+
+        {/* 03. Interactive PCB Trace Architecture Matrix */}
         <PCBArchitectureMatrix />
 
-        {/* 03.5: "The Complete Builder" Cross-Domain Bento Grid */}
+        {/* 03.5. "The Complete Builder" Cross-Domain Bento Grid */}
         <EngineerProfileBento />
 
-        {/* 04: "Why Hire Atharva" 3-in-1 Role Consolidation & ROI Bench */}
+        {/* 04. "Why Hire Atharva" 3-in-1 Role Consolidation & ROI Bench */}
         <HireAtharvaROIWidget />
 
-        {/* 05: R&D Career Telemetry Timeline */}
+        {/* 05. R&D Career Telemetry Timeline */}
         <CareerTelemetryTimeline />
 
-        {/* 06: Finale: Interactive UART Serial Terminal & Magnetic CTA */}
-        <UARTTerminalCTA />
+        {/* 06. Finale: Interactive UART Serial Terminal & Magnetic CTA */}
+        <UARTTerminalCTA
+          onOpenResume={() => setIsResumeModalOpen(true)}
+          onOpenContact={() => setIsContactModalOpen(true)}
+          onSelectDomain={handleSelectDomain}
+        />
       </main>
+
+      {/* Collapsible Embedded Developer Terminal & Simulator (Docked Floating Console) */}
+      <CollapsibleTerminalDrawer
+        isOpen={isTerminalOpen}
+        onToggle={() => setIsTerminalOpen(!isTerminalOpen)}
+        onOpenResume={() => setIsResumeModalOpen(true)}
+        onOpenContact={() => setIsContactModalOpen(true)}
+        onSelectDomain={handleSelectDomain}
+      />
+
+      {/* Single-Page ATS Resume Hub Modal */}
+      <ATSResumeModal
+        isOpen={isResumeModalOpen}
+        onClose={() => setIsResumeModalOpen(false)}
+        onOpenContact={() => setIsContactModalOpen(true)}
+      />
+
+      {/* Fast Direct Recruiter Contact & Apply Modal */}
+      <QuickContactModal
+        isOpen={isContactModalOpen}
+        onClose={() => setIsContactModalOpen(false)}
+      />
 
       {/* High-Tech Footer */}
       <FooterHUD />

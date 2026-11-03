@@ -13,14 +13,15 @@ import {
   GitBranch,
   Activity,
   Zap,
-  FileCode2,
   Scan,
   SunMedium,
-  Target
+  Target,
+  Shield
 } from 'lucide-react';
 import ScrambleText from './ScrambleText';
 import { soundEngine } from '../utils/soundEngine';
 import BlueprintDrawer from './BlueprintDrawer';
+import { smoothScrollTo } from '../utils/scrollHelper';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -1214,8 +1215,8 @@ const MACHINES_DATA = [
     subtitle: 'Sub-Picofarad Nuclear & Scientific Research Instrumentation (BARC Standard)',
     organization: 'Bhabha Atomic Research Centre (BARC) / Scientific R&D',
     dropKey: 'machine01_barc',
-    repoUrl: 'https://github.com/AtharvaYadav-dev',
-    repoName: 'AtharvaYadav-dev',
+    isOpenSource: false,
+    isProprietary: true,
     component: BarcBridgeVisualizer,
     summary:
       'Ultra-low-noise embedded acquisition pipeline with lock-in phase-sensitive detection resolving sub-picofarad (sub-pF) impedance variations with zero thermal drift.',
@@ -1255,8 +1256,8 @@ const MACHINES_DATA = [
     subtitle: 'Multi-Zone Real-Time Thermal Runaway Prevention & ATE Telemetry Rig',
     organization: 'SVNIT (Surat) / Industrial R&D',
     dropKey: 'machine02_svnit',
-    repoUrl: 'https://github.com/AtharvaYadav-dev',
-    repoName: 'AtharvaYadav-dev',
+    isOpenSource: false,
+    isProprietary: true,
     component: ThermalHeatmapMatrix,
     summary:
       'High-speed multi-channel data acquisition architecture with sub-millisecond thermistor circular DMA scanning and hardware-level emergency cutoff.',
@@ -1296,6 +1297,7 @@ const MACHINES_DATA = [
     subtitle: 'Dual-MCU Lockstep Motion Planner & 100Hz Closed-Loop Pneumatic Extruder',
     organization: 'SPPL OEM Machine Architecture',
     dropKey: 'machine03_bio4d',
+    isOpenSource: true,
     repoUrl: 'https://github.com/AtharvaYadav-dev/InkPrinter',
     repoName: 'AtharvaYadav-dev/InkPrinter',
     component: BioScaffoldVisualizer,
@@ -1341,6 +1343,7 @@ const MACHINES_DATA = [
     subtitle: 'High-Peak-Power NIR Pulses for Wafer-Level Silicon & III-V Processing',
     organization: 'Specialise Products Pvt. Ltd. (SPPL) // Photonics R&D',
     dropKey: 'machine04_swpsms',
+    isOpenSource: true,
     repoUrl: 'https://github.com/AtharvaYadav-dev/Galvo_Scriber',
     repoName: 'AtharvaYadav-dev/Galvo_Scriber',
     component: WaferLaserVisualizer,
@@ -1382,8 +1385,8 @@ const MACHINES_DATA = [
     subtitle: 'Multi-Wavelength DPSS Laser Scribing for Thin-Film Perovskite & ITO Solar Cells',
     organization: 'Specialise Products Pvt. Ltd. (SPPL) // Solar Photovoltaics',
     dropKey: 'machine05_lsm',
-    repoUrl: 'https://github.com/AtharvaYadav-dev',
-    repoName: 'AtharvaYadav-dev',
+    isOpenSource: false,
+    isProprietary: true,
     component: SolarScribeVisualizer,
     summary:
       'Multi-wavelength (1064nm, 532nm, 355nm) DPSS laser scribing platform synchronized with precision motorized X-Y stages for P1, P2, and P3 thin-film photovoltaic isolation.',
@@ -1423,8 +1426,8 @@ const MACHINES_DATA = [
     subtitle: '20W–100W Pulsed IPG Photonics Fiber Laser Platform',
     organization: 'Specialise Products Pvt. Ltd. (SPPL) // Industrial Fiber Lasers',
     dropKey: 'machine06_lem',
-    repoUrl: 'https://github.com/AtharvaYadav-dev',
-    repoName: 'AtharvaYadav-dev',
+    isOpenSource: false,
+    isProprietary: true,
     component: FiberLaserVisualizer,
     summary:
       'High-speed industrial fiber laser marking platform utilizing 20W to 100W IPG Photonics sources, mark-on-the-fly (MOTF) kinematics, and vector hatching up to 2500 mm/s.',
@@ -1464,8 +1467,8 @@ const MACHINES_DATA = [
     subtitle: 'Non-Contact Pixel-Level Infrared Thermal Streaming (-20°C to 1000°C)',
     organization: 'Specialise Products Pvt. Ltd. (SPPL) // Thermal Vision R&D',
     dropKey: 'machine07_tc',
-    repoUrl: 'https://github.com/AtharvaYadav-dev',
-    repoName: 'AtharvaYadav-dev',
+    isOpenSource: false,
+    isProprietary: true,
     component: LwirThermographyVisualizer,
     summary:
       'Real-time radiometric thermal imaging system streaming lossless 640×480 and 384×288 Long-Wave Infrared (8–14 µm) pixel-level temperature data over 100 Mbit Ethernet.',
@@ -1505,8 +1508,8 @@ const MACHINES_DATA = [
     subtitle: 'Non-Destructive Weld Inspection, Photo-Thermal Mapping & Sub-Micron Surface Texturing',
     organization: 'Specialise Products Pvt. Ltd. (SPPL) // Advanced Photonics',
     dropKey: 'machine08_ltwis',
-    repoUrl: 'https://github.com/AtharvaYadav-dev',
-    repoName: 'AtharvaYadav-dev',
+    isOpenSource: false,
+    isProprietary: true,
     component: LockInNdtVisualizer,
     summary:
       'Lock-in non-destructive testing (NDT) system pairing dual 50W diode lasers with synchronized thermal camera feeds to detect sub-surface weld flaws, photo-thermal mapping, and <20 µm texturing.',
@@ -1539,11 +1542,37 @@ const MACHINES_DATA = [
   },
 ];
 
-export default function MachinesBay() {
+const DOMAIN_MACHINE_MAP = {
+  all: ['01', '02', '03', '04', '05', '06', '07', '08'],
+  ev: ['02', '01', '08'],
+  defense: ['07', '08', '01'],
+  laser: ['04', '05', '06', '01'],
+  robotics: ['03', '02'],
+};
+
+export default function MachinesBay({
+  selectedDomain = 'all',
+  onSelectDomain,
+}) {
   const [activeMachineIndex, setActiveMachineIndex] = useState(0);
   const [activeTab, setActiveTab] = useState('feed'); // 'feed' (System Schematic & Specs) or 'code' (Bare-Metal Architecture & Code)
   const [copiedCode, setCopiedCode] = useState(false);
   const [isBlueprintOpen, setIsBlueprintOpen] = useState(false);
+
+  const [prevDomain, setPrevDomain] = useState(selectedDomain);
+  if (selectedDomain !== prevDomain) {
+    setPrevDomain(selectedDomain);
+    if (selectedDomain !== 'all') {
+      const matchingIds = DOMAIN_MACHINE_MAP[selectedDomain] || [];
+      const currentId = MACHINES_DATA[activeMachineIndex]?.id;
+      if (!matchingIds.includes(currentId)) {
+        const firstMatchIndex = MACHINES_DATA.findIndex((m) => matchingIds.includes(m.id));
+        if (firstMatchIndex !== -1) {
+          setActiveMachineIndex(firstMatchIndex);
+        }
+      }
+    }
+  }
 
   // 3D Holographic Mouse-Tracking Tilt State
   const [cardTilt, setCardTilt] = useState({ rotX: 0, rotY: 0, spotX: 50, spotY: 50 });
@@ -1620,11 +1649,25 @@ export default function MachinesBay() {
     setIsBlueprintOpen(true);
   };
 
+  const jumpToMachine = (idx) => {
+    soundEngine.playRelayClick();
+    setActiveMachineIndex(idx);
+    if (containerRef.current) {
+      const rect = containerRef.current.getBoundingClientRect();
+      const currentScroll = window.scrollY || window.pageYOffset;
+      const containerTop = currentScroll + rect.top;
+      const totalBayScroll = containerRef.current.offsetHeight - window.innerHeight;
+      const targetScroll = containerTop + (idx / Math.max(1, MACHINES_DATA.length - 1)) * Math.max(0, totalBayScroll);
+      smoothScrollTo(targetScroll);
+    }
+  };
+
   return (
     <section ref={containerRef} id="machines" className="relative z-10 bg-[#030712] min-h-[500vh]">
-      {/* Slide-Over Engineering Blueprint Modal Drawer */}
+      {/* Slide-Over Engineering Blueprint Modal Drawer with Dual-View */}
       <BlueprintDrawer
         machine={activeMachine}
+        codeSnippet={activeCodeSnippet}
         isOpen={isBlueprintOpen}
         onClose={() => setIsBlueprintOpen(false)}
       />
@@ -1649,57 +1692,88 @@ export default function MachinesBay() {
               </h2>
             </div>
 
-            {/* Quick Series Jump Buttons */}
-            <div className="flex items-center gap-1.5 font-mono text-[11px]">
-              <button
-                onClick={() => {
-                  soundEngine.playRelayClick();
-                  setActiveMachineIndex(0); // Jump to start of Series A
-                }}
-                className={`px-2.5 py-1 rounded border transition-all cursor-pointer ${
-                  activeMachineIndex < 3
-                    ? 'bg-cyan-950 text-cyan-300 border-cyan-400 font-bold'
-                    : 'bg-slate-900/60 text-slate-400 border-slate-800 hover:text-slate-200'
-                }`}
-              >
-                SERIES A [1-3]
-              </button>
-              <button
-                onClick={() => {
-                  soundEngine.playRelayClick();
-                  setActiveMachineIndex(3); // Jump to start of Series B
-                }}
-                className={`px-2.5 py-1 rounded border transition-all cursor-pointer ${
-                  activeMachineIndex >= 3
-                    ? 'bg-amber-950 text-amber-300 border-amber-400 font-bold'
-                    : 'bg-slate-900/60 text-slate-400 border-slate-800 hover:text-slate-200'
-                }`}
-              >
-                SERIES B [4-8]
-              </button>
+            {/* Quick Series Jump & Domain Switcher Buttons */}
+            <div className="flex flex-wrap items-center gap-2 font-mono text-[11px]">
+              {/* Domain Switcher */}
+              <div className="flex items-center gap-1 bg-slate-950/80 p-0.5 rounded border border-cyan-500/30">
+                {[
+                  { id: 'all', label: 'ALL' },
+                  { id: 'ev', label: 'EV/HIL' },
+                  { id: 'defense', label: 'DEFENSE/EO' },
+                  { id: 'laser', label: 'LASERS' },
+                  { id: 'robotics', label: 'ROBOTICS' },
+                ].map((d) => (
+                  <button
+                    key={d.id}
+                    onClick={() => {
+                      soundEngine.playTabLock();
+                      if (onSelectDomain) onSelectDomain(d.id);
+                    }}
+                    className={`px-2 py-0.5 rounded text-[10px] transition-colors cursor-pointer ${
+                      selectedDomain === d.id
+                        ? 'bg-cyan-500 text-black font-bold'
+                        : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    {d.label}
+                  </button>
+                ))}
+              </div>
+
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => jumpToMachine(0)}
+                  className={`px-2 py-1 rounded border transition-all cursor-pointer ${
+                    activeMachineIndex < 3
+                      ? 'bg-cyan-950 text-cyan-300 border-cyan-400 font-bold'
+                      : 'bg-slate-900/60 text-slate-400 border-slate-800 hover:text-slate-200'
+                  }`}
+                >
+                  SERIES A
+                </button>
+                <button
+                  onClick={() => jumpToMachine(3)}
+                  className={`px-2 py-1 rounded border transition-all cursor-pointer ${
+                    activeMachineIndex >= 3
+                      ? 'bg-amber-950 text-amber-300 border-amber-400 font-bold'
+                      : 'bg-slate-900/60 text-slate-400 border-slate-800 hover:text-slate-200'
+                  }`}
+                >
+                  SERIES B
+                </button>
+              </div>
             </div>
           </div>
 
           {/* Machine Selector Tabs (All 8 Machines) */}
           <div className="flex items-center gap-1 overflow-x-auto pb-1 custom-scrollbar font-mono text-xs">
-            {MACHINES_DATA.map((m, idx) => (
-              <button
-                key={m.id}
-                onClick={() => {
-                  soundEngine.playRelayClick();
-                  setActiveMachineIndex(idx);
-                }}
-                onMouseEnter={() => soundEngine.playHoverBlip()}
-                data-target={m.code}
-                className={`px-2.5 py-1 rounded border whitespace-nowrap transition-all cursor-pointer ${
-                  activeMachineIndex === idx
-                    ? 'bg-cyan-500 text-black font-bold border-cyan-400 glow-cyan-sm'
-                    : 'bg-slate-900/60 text-slate-400 border-slate-800 hover:border-slate-600 hover:text-slate-200'
-                }`}
-              >
-                M_{m.id} // {m.code.split('//')[1]?.trim() || m.code}
-              </button>
-            ))}
+            {MACHINES_DATA.map((m, idx) => {
+              const matchingIds = DOMAIN_MACHINE_MAP[selectedDomain] || [];
+              const isDomainMatch = selectedDomain !== 'all' && matchingIds.includes(m.id);
+              return (
+                <button
+                  key={m.id}
+                  onClick={() => jumpToMachine(idx)}
+                  onMouseEnter={() => soundEngine.playHoverBlip()}
+                  data-target={m.code}
+                  className={`px-2.5 py-1 rounded border whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 ${
+                    activeMachineIndex === idx
+                      ? 'bg-cyan-500 text-black font-bold border-cyan-400 glow-cyan-sm'
+                      : isDomainMatch
+                      ? 'bg-cyan-950/70 text-cyan-300 border-cyan-500/50 hover:border-cyan-400 font-semibold'
+                      : 'bg-slate-900/60 text-slate-400 border-slate-800 hover:border-slate-600 hover:text-slate-200'
+                  }`}
+                >
+                  {isDomainMatch && <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping" />}
+                  <span>M_{m.id} // {m.code.split('//')[1]?.trim() || m.code}</span>
+                  {isDomainMatch && (
+                    <span className="text-[9px] px-1 py-0.2 rounded bg-cyan-900/80 text-cyan-200 font-bold">
+                      MATCH
+                    </span>
+                  )}
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -1754,20 +1828,31 @@ export default function MachinesBay() {
                 <span>[⚡ VIEW_BLUEPRINT_DRAWER]</span>
               </button>
 
-              {activeMachine.repoUrl && (
+              {activeMachine.isOpenSource && activeMachine.repoUrl ? (
                 <a
                   href={activeMachine.repoUrl}
                   target="_blank"
                   rel="noreferrer"
                   onMouseEnter={() => soundEngine.playHoverBlip()}
                   data-target="MACHINE_GITHUB_LINK"
-                  className="py-2 px-3 rounded bg-slate-900 hover:bg-slate-800 border border-cyan-500/40 hover:border-cyan-300 text-cyan-300 font-mono text-xs transition-all flex items-center gap-1.5 cursor-pointer"
+                  className="py-2 px-3 rounded bg-cyan-950/80 hover:bg-cyan-900 border border-cyan-500/50 hover:border-cyan-400 text-cyan-300 font-mono text-xs transition-all flex items-center gap-1.5 cursor-pointer shadow-[0_0_12px_rgba(6,182,212,0.2)]"
                   title="Open GitHub Repository"
                 >
-                  <GitBranch className="w-3.5 h-3.5" />
-                  <span>REPO</span>
-                  <ExternalLink className="w-3 h-3 ml-0.5 text-slate-400" />
+                  <GitBranch className="w-3.5 h-3.5 text-cyan-400" />
+                  <span>VIEW REPO</span>
+                  <ExternalLink className="w-3 h-3 ml-0.5 text-cyan-400" />
                 </a>
+              ) : (
+                <button
+                  onClick={() => handleTabSwitch('code')}
+                  onMouseEnter={() => soundEngine.playHoverBlip()}
+                  className="py-2 px-3 rounded bg-slate-900/90 hover:bg-slate-800 border border-amber-500/40 hover:border-amber-400 text-amber-300 font-mono text-xs transition-all flex items-center gap-1.5 cursor-pointer"
+                  title="Proprietary Production Firmware: View Verified Architecture & Register Map"
+                >
+                  <Shield className="w-3.5 h-3.5 text-amber-400" />
+                  <span className="hidden sm:inline">PROPRIETARY IP</span>
+                  <span className="sm:hidden">NDA IP</span>
+                </button>
               )}
             </div>
 
@@ -1936,17 +2021,19 @@ export default function MachinesBay() {
                 </div>
               )}
 
-              {/* Video Dropzone Guide Tag & Click Blueprint Prompt */}
-              <div className="mt-2.5 pt-2 border-t border-cyan-500/20 flex flex-wrap items-center justify-between text-[10px] font-mono text-slate-500">
-                <span className="flex items-center gap-1.5">
-                  <FileCode2 className="w-3.5 h-3.5 text-cyan-400" />
-                  DROPZONE: <code className="text-slate-400">HARDWARE_MEDIA_DROPZONE.{activeMachine.dropKey}</code>
+              {/* Hardware Telemetry Operational Verification Strip */}
+              <div className="mt-2.5 pt-2 border-t border-cyan-500/20 flex flex-wrap items-center justify-between text-[10px] font-mono">
+                <span className="flex items-center gap-1.5 text-emerald-400 font-semibold">
+                  <Activity className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
+                  <span>SIMULATION STATUS: 60 FPS DIGITAL TWIN // ZERO-JITTER DETERMINISTIC</span>
                 </span>
                 <button
                   onClick={handleOpenBlueprint}
-                  className="text-cyan-400/90 hover:text-cyan-300 font-bold underline cursor-pointer"
+                  onMouseEnter={() => soundEngine.playHoverBlip()}
+                  className="text-cyan-400 hover:text-cyan-300 font-bold flex items-center gap-1 cursor-pointer transition-colors"
                 >
-                  CLICK TO EXPAND BLUEPRINT DRAWER ➔
+                  <span>EXPAND BLUEPRINT &amp; PINOUTS</span>
+                  <span>➔</span>
                 </button>
               </div>
             </div>
