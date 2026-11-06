@@ -21,6 +21,7 @@ import FooterHUD from './components/FooterHUD';
 import CollapsibleTerminalDrawer from './components/CollapsibleTerminalDrawer';
 import TechnicalResumeModal from './components/TechnicalResumeModal';
 import QuickContactModal from './components/QuickContactModal';
+import AtharvaAI from './components/AtharvaAI';
 import { smoothScrollTo } from './utils/scrollHelper';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -190,6 +191,12 @@ export default function App() {
       <QuickContactModal
         isOpen={isContactModalOpen}
         onClose={() => setIsContactModalOpen(false)}
+      />
+
+      {/* Interactive Atharva-AI Technical Assistant Drawer */}
+      <AtharvaAI
+        onOpenResume={() => setIsResumeModalOpen(true)}
+        onOpenContact={() => setIsContactModalOpen(true)}
       />
 
       {/* High-Tech Footer */}
