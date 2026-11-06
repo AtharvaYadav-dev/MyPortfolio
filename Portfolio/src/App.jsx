@@ -19,7 +19,7 @@ import CareerTelemetryTimeline from './components/CareerTelemetryTimeline';
 import UARTTerminalCTA from './components/UARTTerminalCTA';
 import FooterHUD from './components/FooterHUD';
 import CollapsibleTerminalDrawer from './components/CollapsibleTerminalDrawer';
-import ATSResumeModal from './components/ATSResumeModal';
+import TechnicalResumeModal from './components/TechnicalResumeModal';
 import QuickContactModal from './components/QuickContactModal';
 import { smoothScrollTo } from './utils/scrollHelper';
 
@@ -179,8 +179,8 @@ export default function App() {
         onSelectDomain={handleSelectDomain}
       />
 
-      {/* Single-Page ATS Resume Hub Modal */}
-      <ATSResumeModal
+      {/* Engineering Technical Resume Dossier Modal */}
+      <TechnicalResumeModal
         isOpen={isResumeModalOpen}
         onClose={() => setIsResumeModalOpen(false)}
         onOpenContact={() => setIsContactModalOpen(true)}

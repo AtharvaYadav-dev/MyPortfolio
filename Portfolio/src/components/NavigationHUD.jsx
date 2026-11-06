@@ -190,9 +190,9 @@ export default function NavigationHUD({
           </nav>
         </div>
 
-        {/* Right Action Cluster: ATS Resume, Terminal, Audio & Clock */}
+        {/* Right Action Cluster: Technical Resume, Terminal, Audio & Clock */}
         <div className="pointer-events-auto flex items-center gap-2 sm:gap-3">
-          {/* Quick ATS Resume Modal Launcher */}
+          {/* Quick Technical Resume Modal Launcher */}
           {onOpenResume && (
             <button
               onClick={() => {
@@ -201,7 +201,7 @@ export default function NavigationHUD({
               }}
               onMouseEnter={() => soundEngine.playHoverBlip()}
               className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-slate-900/80 hover:bg-slate-800 border border-cyan-500/40 hover:border-cyan-400 text-cyan-300 font-mono text-xs transition-colors cursor-pointer"
-              title="Open Verified ATS Resume"
+              title="Open Technical Resume (PDF)"
             >
               <FileText className="w-3.5 h-3.5 text-cyan-400" />
               <span className="hidden sm:inline font-bold">RESUME</span>

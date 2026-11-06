@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Terminal, Send, Mail, MapPin, CheckCircle, ExternalLink, Sparkles, FileText } from 'lucide-react';
 import { soundEngine } from '../utils/soundEngine';
-import { downloadATSResume } from '../utils/resumeData';
+import { downloadResume, RESUME_PATH, RESUME_FILENAME } from '../utils/resumeData';
 
 function GithubIcon({ className = 'w-4 h-4' }) {
   return (
@@ -50,7 +50,7 @@ export default function UARTTerminalCTA({
         newHistory.push(
           'AVAILABLE HARDWARE R&D COMMANDS:',
           '  hire          - Execute recruitment protocol & initiate transmission',
-          '  view_resume   - Open single-page ATS verified candidate resume',
+          '  view_resume   - Open technical engineering candidate resume dossier',
           '  system_stats  - cat system_stats.log (CPU load, clocks, DMA, temps, IWDG)',
           '  run_pid_sim   - Simulate 100Hz closed-loop step response with ASCII telemetry',
           '  run_gcode     - Parse G-code kinematics & toolpath velocity vectors',
@@ -58,7 +58,7 @@ export default function UARTTerminalCTA({
           '  domain <name> - Switch recruiter mode (ev, defense, laser, robotics, all)',
           '  projects      - List the 8 R&D industrial machines across 2 series',
           '  github        - Open official GitHub profile (AtharvaYadav-dev)',
-          '  cv            - Download ATS-optimized Industrial Firmware Engineer CV',
+          '  cv            - Download Industrial Firmware Engineer Resume (PDF)',
           '  clear         - Wipe serial terminal buffer'
         );
         break;
@@ -113,7 +113,7 @@ export default function UARTTerminalCTA({
 
       case 'view_resume':
       case 'resume':
-        newHistory.push('-> LAUNCHING VERIFIED ATS RESUME DOSSIER MODAL...');
+        newHistory.push('-> LAUNCHING TECHNICAL RESUME DOSSIER MODAL...');
         if (onOpenResume) onOpenResume();
         break;
 
@@ -200,10 +200,10 @@ export default function UARTTerminalCTA({
 
       case 'cv':
       case 'download_resume':
-      case 'download_ats_cv':
+      case 'download_cv':
         newHistory.push(
-          '-> GENERATING VERIFIED ATS INDUSTRIAL FIRMWARE RESUME DOSSIER...',
-          '-> DOWNLOAD INITIATED (TXT FORMAT).'
+          '-> FETCHING ATHARVA YADAV FIRMWARE RESUME (PDF)...',
+          '-> FILE: Atharva_Yadav_Resume.pdf (DOWNLOAD STARTED)'
         );
         triggerCVDownload();
         break;
@@ -277,7 +277,7 @@ export default function UARTTerminalCTA({
 
   const triggerCVDownload = () => {
     soundEngine.playHoverBlip();
-    downloadATSResume();
+    downloadResume();
   };
 
   return (
@@ -376,7 +376,7 @@ export default function UARTTerminalCTA({
               className="px-2.5 py-1 rounded bg-slate-800/80 border border-slate-700 text-slate-300 hover:border-cyan-400 hover:text-white transition-all flex items-center gap-1 cursor-pointer"
             >
               <FileText className="w-3 h-3 text-cyan-400" />
-              [&gt; VIEW_ATS_RESUME]
+              [&gt; VIEW_RESUME]
             </button>
             <button
               onClick={() => handleChipClick('run_pid_sim')}
@@ -456,20 +456,32 @@ export default function UARTTerminalCTA({
               <span>[INITIATE_DIRECT_CONTACT]</span>
             </button>
 
-            {/* Resume Trigger Button */}
-            {onOpenResume && (
-              <button
-                onClick={() => {
-                  soundEngine.playTabLock();
-                  onOpenResume();
-                }}
+            {/* View & Download Technical Resume Buttons */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <a
+                href={RESUME_PATH}
+                target="_blank"
+                rel="noopener noreferrer"
                 onMouseEnter={() => soundEngine.playHoverBlip()}
-                className="w-full py-2.5 px-4 rounded bg-slate-900/80 hover:bg-slate-800 border border-slate-700 hover:border-cyan-400 text-slate-200 font-mono text-xs tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer"
+                className="py-2.5 px-3 rounded bg-cyan-950/80 hover:bg-cyan-900 border border-cyan-500/50 hover:border-cyan-400 text-cyan-300 font-mono text-xs tracking-wider transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-[0_0_12px_rgba(6,182,212,0.2)]"
+                title="Open Engineering Resume (PDF) in New Tab"
               >
-                <FileText className="w-3.5 h-3.5 text-cyan-400" />
-                <span>VIEW VERIFIED ATS RESUME</span>
-              </button>
-            )}
+                <ExternalLink className="w-3.5 h-3.5 text-cyan-400" />
+                <span>VIEW CV (PDF)</span>
+              </a>
+
+              <a
+                href={RESUME_PATH}
+                download={RESUME_FILENAME}
+                onClick={() => soundEngine.playHoverBlip()}
+                onMouseEnter={() => soundEngine.playHoverBlip()}
+                className="py-2.5 px-3 rounded bg-cyan-500 hover:bg-cyan-400 text-black font-mono font-bold text-xs tracking-wider transition-all flex items-center justify-center gap-1.5 glow-cyan cursor-pointer"
+                title="Direct Download Engineering Resume (PDF)"
+              >
+                <FileText className="w-3.5 h-3.5" />
+                <span>DOWNLOAD PDF</span>
+              </a>
+            </div>
 
             {/* GitHub Profile Button */}
             <a

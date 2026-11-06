@@ -1,4 +1,9 @@
-// Verified ATS Resume Data & File Downloader Utility
+import resumePdfAsset from '../assets/Atharva_Yadav_Resume.pdf';
+
+// Verified Engineering Resume Data & File Downloader Utility
+export const RESUME_PATH = resumePdfAsset;
+export const RESUME_FILENAME = 'Atharva_Yadav_Resume.pdf';
+
 export const RESUME_TEXT = `========================================================================
 ATHARVA YADAV — INDUSTRIAL FIRMWARE & EMBEDDED SYSTEMS ENGINEER (R&D)
 Location: Mumbai, India | Relocation: Bangalore / Pune / Mumbai
@@ -45,15 +50,41 @@ EDUCATION:
   Thakur College of Science & Commerce, University of Mumbai
 ========================================================================`;
 
-export function downloadATSResume() {
+/**
+ * Direct browser download of Atharva Yadav's Engineering Resume (PDF)
+ */
+export function downloadResume() {
+  const link = document.createElement('a');
+  link.href = RESUME_PATH;
+  link.download = RESUME_FILENAME;
+  link.target = '_blank';
+  link.rel = 'noopener noreferrer';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+/**
+ * Open the Engineering Resume (PDF) cleanly in a new browser tab
+ */
+export function openResumePDF() {
+  window.open(RESUME_PATH, '_blank', 'noopener,noreferrer');
+}
+
+/**
+ * Download clean plain text version for terminal and low-bandwidth environments
+ */
+export function downloadResumeText() {
   const blob = new Blob([RESUME_TEXT], { type: 'text/plain;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
-  link.download = 'Atharva_Yadav_Firmware_Engineer_ATS_Resume.txt';
+  link.download = 'Atharva_Yadav_Firmware_Resume.txt';
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
   URL.revokeObjectURL(url);
 }
 
+// Direct export for Engineering Resume
+export default downloadResume;

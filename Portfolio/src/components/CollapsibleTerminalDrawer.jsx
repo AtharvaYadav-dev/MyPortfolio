@@ -8,7 +8,7 @@ import {
   CornerDownLeft
 } from 'lucide-react';
 import { soundEngine } from '../utils/soundEngine';
-import { downloadATSResume } from '../utils/resumeData';
+import { downloadResume } from '../utils/resumeData';
 
 const INITIAL_LOGS = [
   'STM32H7_COM3: ACTIVE (BAUD 115200 8-N-1 // HARD REAL-TIME)',
@@ -71,8 +71,8 @@ export default function CollapsibleTerminalDrawer({
           '  run_gcode       - Parse G-code kinematics & toolpath velocity vectors',
           '  ping_stm32      - Test round-trip hardware DMA bus latency and jitter',
           '  registers       - cat registers.h (ARM Cortex-M7 & STM32 register map)',
-          '  view_resume     - Open single-page ATS-compliant candidate resume',
-          '  download_resume - Trigger verified ATS resume download (.TXT format)',
+          '  view_resume     - Open technical engineering candidate resume dossier',
+          '  download_resume - Download Engineering Resume (PDF)',
           '  domain <name>   - Switch Recruiter Mode (ev, defense, laser, robotics, all)',
           '  contact         - Launch direct recruiter transmission dialog',
           '  github          - Open GitHub portfolio repositories',
@@ -172,17 +172,17 @@ export default function CollapsibleTerminalDrawer({
       case 'view_resume':
       case 'resume':
       case 'cv':
-        newHistory.push('-> LAUNCHING VERIFIED ATS RESUME DOSSIER MODAL...');
+        newHistory.push('-> LAUNCHING TECHNICAL RESUME DOSSIER MODAL...');
         if (onOpenResume) onOpenResume();
         break;
 
       case 'download_resume':
       case 'download_cv':
         newHistory.push(
-          '-> GENERATING VERIFIED ATS INDUSTRIAL RESUME DOSSIER (.TXT)...',
-          '-> FILE GENERATED: Atharva_Yadav_Firmware_Engineer_ATS_Resume.txt (DOWNLOAD STARTED)'
+          '-> FETCHING ATHARVA YADAV FIRMWARE RESUME (PDF)...',
+          '-> FILE: Atharva_Yadav_Resume.pdf (DOWNLOAD STARTED)'
         );
-        downloadATSResume();
+        downloadResume();
         break;
 
       case 'github':

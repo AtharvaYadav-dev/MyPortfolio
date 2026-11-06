@@ -11,12 +11,14 @@ import {
   GraduationCap,
   Cpu,
   Award,
-  Zap
+  Zap,
+  ExternalLink,
+  FileText
 } from 'lucide-react';
 import { soundEngine } from '../utils/soundEngine';
-import { downloadATSResume } from '../utils/resumeData';
+import { RESUME_PATH, RESUME_FILENAME, downloadResumeText } from '../utils/resumeData';
 
-export default function ATSResumeModal({ isOpen, onClose, onOpenContact }) {
+export default function TechnicalResumeModal({ isOpen, onClose, onOpenContact }) {
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape' && isOpen) {
@@ -36,7 +38,7 @@ export default function ATSResumeModal({ isOpen, onClose, onOpenContact }) {
 
   const handleDownloadTxt = () => {
     soundEngine.playHoverBlip();
-    downloadATSResume();
+    downloadResumeText();
   };
 
   return (
@@ -65,33 +67,61 @@ export default function ATSResumeModal({ isOpen, onClose, onOpenContact }) {
               <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-ping" />
               <div>
                 <span className="text-cyan-400 font-bold uppercase tracking-wider text-[11px] block">
-                  VERIFIED ATS RESUME DOSSIER // HARDWARE R&amp;D
+                  TECHNICAL RESUME DOSSIER // HARDWARE R&amp;D
                 </span>
                 <span className="text-slate-400 text-[10px]">
-                  FORMAT: ATS-COMPLIANT SINGLE-PAGE EQUIVALENT • PARSER SCORE: 98/100
+                  FORMAT: R&amp;D FIRMWARE &amp; EMBEDDED SYSTEMS • PRODUCTION DOSSIER
                 </span>
               </div>
             </div>
 
             <div className="flex items-center gap-2">
-              <button
-                onClick={handleDownloadTxt}
+              {/* Direct View Full PDF */}
+              <a
+                href={RESUME_PATH}
+                target="_blank"
+                rel="noopener noreferrer"
                 onMouseEnter={() => soundEngine.playHoverBlip()}
-                className="px-3 py-1.5 rounded bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 hover:border-cyan-400 flex items-center gap-1.5 transition-colors cursor-pointer text-xs"
-                title="Download Clean Plain Text Resume"
+                className="px-3 py-1.5 rounded bg-cyan-950/80 hover:bg-cyan-900 border border-cyan-500/60 hover:border-cyan-400 text-cyan-300 font-bold flex items-center gap-1.5 transition-colors cursor-pointer text-xs shadow-[0_0_12px_rgba(6,182,212,0.2)]"
+                title="Open Engineering Resume PDF in New Tab"
               >
-                <Download className="w-3.5 h-3.5 text-cyan-400" />
-                <span className="hidden sm:inline">DOWNLOAD</span> .TXT
-              </button>
+                <ExternalLink className="w-3.5 h-3.5 text-cyan-400" />
+                <span className="hidden sm:inline">VIEW FULL</span> PDF
+              </a>
 
+              {/* Direct Download PDF */}
+              <a
+                href={RESUME_PATH}
+                download={RESUME_FILENAME}
+                onClick={() => soundEngine.playHoverBlip()}
+                onMouseEnter={() => soundEngine.playHoverBlip()}
+                className="px-3.5 py-1.5 rounded bg-cyan-500 hover:bg-cyan-400 text-black font-bold flex items-center gap-1.5 glow-cyan transition-all cursor-pointer text-xs"
+                title="Download Direct Engineering Resume (PDF)"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span>DOWNLOAD PDF</span>
+              </a>
+
+              {/* Print Dialog */}
               <button
                 onClick={handlePrint}
                 onMouseEnter={() => soundEngine.playHoverBlip()}
-                className="px-3.5 py-1.5 rounded bg-cyan-500 hover:bg-cyan-400 text-black font-bold flex items-center gap-1.5 glow-cyan transition-all cursor-pointer text-xs"
-                title="Print or Save as PDF"
+                className="hidden sm:flex px-2.5 py-1.5 rounded bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 hover:border-slate-500 items-center gap-1.5 transition-colors cursor-pointer text-xs"
+                title="Print Document"
               >
-                <Printer className="w-3.5 h-3.5" />
-                <span>SAVE / PRINT .PDF</span>
+                <Printer className="w-3.5 h-3.5 text-slate-400" />
+                <span>PRINT</span>
+              </button>
+
+              {/* Download Clean Text */}
+              <button
+                onClick={handleDownloadTxt}
+                onMouseEnter={() => soundEngine.playHoverBlip()}
+                className="hidden md:flex px-2.5 py-1.5 rounded bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-800 hover:border-slate-700 items-center gap-1 transition-colors cursor-pointer text-xs"
+                title="Download Clean Plain Text Format"
+              >
+                <FileText className="w-3 h-3 text-slate-500" />
+                <span>.TXT</span>
               </button>
 
               <button
@@ -109,6 +139,41 @@ export default function ATSResumeModal({ isOpen, onClose, onOpenContact }) {
 
           {/* Printable / Viewable Resume Document Body */}
           <div className="flex-1 overflow-y-auto p-6 sm:p-8 space-y-6 custom-scrollbar text-slate-200 font-sans text-xs sm:text-sm bg-[#040813]">
+            {/* Quick-Summary Card Header Banner */}
+            <div className="p-4 rounded-xl bg-gradient-to-r from-cyan-950/60 via-slate-900/80 to-cyan-950/60 border border-cyan-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 text-cyan-400 font-mono text-xs font-bold uppercase tracking-wider">
+                  <FileText className="w-4 h-4 text-cyan-400" />
+                  <span>ATHARVA YADAV — OFFICIAL ENGINEERING CV (PDF)</span>
+                </div>
+                <p className="text-slate-300 text-xs">
+                  Hardware R&amp;D Firmware, Sub-pF Instrumentation, Semiconductor Laser Scribing &amp; Industrial ATE.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2 shrink-0">
+                <a
+                  href={RESUME_PATH}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => soundEngine.playHoverBlip()}
+                  className="px-3.5 py-2 rounded bg-cyan-500 hover:bg-cyan-400 text-black font-mono font-bold text-xs flex items-center gap-1.5 glow-cyan transition-all"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                  <span>VIEW FULL PDF</span>
+                </a>
+                <a
+                  href={RESUME_PATH}
+                  download={RESUME_FILENAME}
+                  onClick={() => soundEngine.playHoverBlip()}
+                  className="px-3 py-2 rounded bg-slate-900 hover:bg-slate-800 border border-cyan-500/50 hover:border-cyan-400 text-cyan-300 font-mono font-bold text-xs flex items-center gap-1.5 transition-colors"
+                >
+                  <Download className="w-3.5 h-3.5 text-cyan-400" />
+                  <span>DOWNLOAD</span>
+                </a>
+              </div>
+            </div>
+
             {/* Applicant Header */}
             <div className="border-b border-cyan-500/30 pb-5 space-y-2">
               <div className="flex flex-wrap items-center justify-between gap-2">
@@ -117,7 +182,7 @@ export default function ATSResumeModal({ isOpen, onClose, onOpenContact }) {
                 </h1>
                 <span className="text-xs font-mono px-2.5 py-1 rounded bg-emerald-950/80 border border-emerald-500/40 text-emerald-400 font-bold flex items-center gap-1">
                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                  ATS VERIFIED CANDIDATE (HARDWARE R&amp;D)
+                  VERIFIED CANDIDATE // HARDWARE R&amp;D
                 </span>
               </div>
 
@@ -334,12 +399,25 @@ export default function ATSResumeModal({ isOpen, onClose, onOpenContact }) {
             </span>
 
             <div className="flex items-center gap-2">
-              <button
-                onClick={handlePrint}
-                className="px-3 py-1.5 rounded bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 cursor-pointer"
+              <a
+                href={RESUME_PATH}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-3 py-1.5 rounded bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 cursor-pointer flex items-center gap-1.5"
               >
-                Print / Save PDF
-              </button>
+                <ExternalLink className="w-3.5 h-3.5 text-cyan-400" />
+                <span>View Full PDF</span>
+              </a>
+
+              <a
+                href={RESUME_PATH}
+                download={RESUME_FILENAME}
+                className="px-3 py-1.5 rounded bg-slate-900 hover:bg-slate-800 text-slate-300 border border-cyan-500/40 hover:border-cyan-400 cursor-pointer flex items-center gap-1.5"
+              >
+                <Download className="w-3.5 h-3.5 text-cyan-400" />
+                <span>Download PDF</span>
+              </a>
+
               <button
                 onClick={() => {
                   soundEngine.playRelayClick();
@@ -358,4 +436,3 @@ export default function ATSResumeModal({ isOpen, onClose, onOpenContact }) {
     </AnimatePresence>
   );
 }
-

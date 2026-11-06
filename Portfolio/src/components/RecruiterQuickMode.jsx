@@ -230,9 +230,10 @@ export default function RecruiterQuickMode({
                     onOpenResume();
                   }}
                   className="px-3 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center gap-1.5 cursor-pointer transition-colors"
+                  title="View Technical Resume (PDF)"
                 >
                   <FileText className="w-3.5 h-3.5 text-cyan-400" />
-                  <span>[VIEW_ATS_RESUME]</span>
+                  <span>[VIEW_RESUME]</span>
                 </button>
               )}
 

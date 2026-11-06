@@ -113,9 +113,10 @@ export default function HeroSection({
               }}
               onMouseEnter={() => soundEngine.playHoverBlip()}
               className="px-5 py-3.5 rounded-lg bg-slate-900/90 hover:bg-slate-800 border border-cyan-500/50 hover:border-cyan-400 text-cyan-300 font-mono text-xs sm:text-sm tracking-wider transition-all flex items-center gap-2 cursor-pointer shadow-[0_0_15px_rgba(6,182,212,0.15)]"
+              title="View Technical Resume & CV (PDF)"
             >
               <FileText className="w-4 h-4 text-cyan-400" />
-              <span>[VIEW_ATS_RESUME]</span>
+              <span>[VIEW_TECHNICAL_CV]</span>
             </button>
           )}
 

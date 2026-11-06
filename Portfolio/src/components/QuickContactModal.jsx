@@ -7,8 +7,7 @@ import {
   Check,
   Send,
   MapPin,
-  ExternalLink,
-  Radio
+  ExternalLink
 } from 'lucide-react';
 import { soundEngine } from '../utils/soundEngine';
 
@@ -30,13 +29,13 @@ function GithubIcon({ className = 'w-4 h-4' }) {
 
 export default function QuickContactModal({ isOpen, onClose }) {
   const [copiedEmail, setCopiedEmail] = useState(false);
+  const [copiedSummary, setCopiedSummary] = useState(false);
   const [formName, setFormName] = useState('');
   const [formOrg, setFormOrg] = useState('');
   const [formEmail, setFormEmail] = useState('');
-  const [formDomain, setFormDomain] = useState('EV / Battery');
+  const [formDomain, setFormDomain] = useState('EV / Battery & HIL');
   const [formMsg, setFormMsg] = useState('');
-  const [isSending, setIsSending] = useState(false);
-  const [sentSuccess, setSentSuccess] = useState(false);
+  const [dispatched, setDispatched] = useState(false);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -57,36 +56,34 @@ export default function QuickContactModal({ isOpen, onClose }) {
     setTimeout(() => setCopiedEmail(false), 2000);
   };
 
-  const handleLaunchEmailTemplate = (subject) => {
+  const handleLaunchEmailTemplate = (subject, bodyTemplate) => {
     soundEngine.playRelayClick();
     const mailtoUrl = `mailto:atharvayadav.dev@gmail.com?subject=${encodeURIComponent(
       subject
-    )}&body=${encodeURIComponent(
-      'Hi Atharva,\n\nI reviewed your Cyber-Physical & Embedded Systems R&D portfolio and would like to connect regarding:\n\n[Company/Role details here]\n\nBest regards,\n'
-    )}`;
-    window.open(mailtoUrl, '_blank');
+    )}&body=${encodeURIComponent(bodyTemplate)}`;
+    window.location.href = mailtoUrl;
   };
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
     soundEngine.playRelayClick();
-    setIsSending(true);
 
-    setTimeout(() => {
-      setIsSending(false);
-      setSentSuccess(true);
-      soundEngine.playTabLock();
+    const subject = `[${formDomain}] R&D Engineering Inquiry — ${formOrg || formName || 'Recruiter'}`;
+    const body = `Hi Atharva,\n\nName: ${formName || 'N/A'}\nOrganization / Team: ${formOrg || 'N/A'}\nReply Email: ${formEmail || 'N/A'}\nTarget Domain: ${formDomain}\n\nMessage Scope:\n${formMsg}\n\nLooking forward to speaking soon.`;
 
-      // Launch mailto fallback as well
-      const subject = `[${formDomain}] R&D Opportunity - ${formOrg || formName}`;
-      const body = `Name: ${formName}\nOrganization: ${formOrg}\nContact Email: ${formEmail}\nTarget Domain: ${formDomain}\n\nMessage:\n${formMsg}`;
-      window.open(`mailto:atharvayadav.dev@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank');
+    setDispatched(true);
+    soundEngine.playTabLock();
 
-      setTimeout(() => {
-        setSentSuccess(false);
-        onClose();
-      }, 2500);
-    }, 1200);
+    // Trigger user mail client synchronously to avoid popup blocker
+    window.location.href = `mailto:atharvayadav.dev@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  };
+
+  const handleCopyFullForm = () => {
+    soundEngine.playHoverBlip();
+    const textToCopy = `To: atharvayadav.dev@gmail.com\nSubject: [${formDomain}] R&D Inquiry - ${formOrg || formName}\n\nName: ${formName}\nOrganization: ${formOrg}\nEmail: ${formEmail}\n\n${formMsg}`;
+    navigator.clipboard.writeText(textToCopy);
+    setCopiedSummary(true);
+    setTimeout(() => setCopiedSummary(false), 2500);
   };
 
   return (
@@ -115,10 +112,10 @@ export default function QuickContactModal({ isOpen, onClose }) {
               <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-ping" />
               <div>
                 <h3 className="text-sm sm:text-base font-display font-bold text-white uppercase tracking-wider">
-                  DIRECT RECRUITER TRANSMISSION // QUICK-APPLY
+                  DIRECT RECRUITER TRANSMISSION // CONTACT
                 </h3>
                 <span className="text-[10px] text-slate-400">
-                  IMMEDIATE CHANNEL TO ATHARVA YADAV (FIRMWARE R&amp;D)
+                  HIGH-CONVERSION DIRECT ACCESS TO ATHARVA YADAV (FIRMWARE R&amp;D)
                 </span>
               </div>
             </div>
@@ -129,37 +126,150 @@ export default function QuickContactModal({ isOpen, onClose }) {
                 onClose();
               }}
               className="p-1.5 rounded-lg bg-slate-900 border border-slate-700 hover:border-red-500 text-slate-400 hover:text-white transition-colors cursor-pointer"
+              title="Close Dialog (ESC)"
             >
               <X className="w-4 h-4" />
             </button>
           </div>
 
-          <div className="p-6 space-y-6 max-h-[82vh] overflow-y-auto custom-scrollbar">
-            {/* Quick Action Badges */}
+          <div className="p-6 space-y-5 max-h-[82vh] overflow-y-auto custom-scrollbar">
+            {/* Primary High-Conversion Direct Action Cards */}
             <div className="space-y-2">
               <div className="text-[11px] text-cyan-400 font-bold uppercase tracking-wider">
-                1. FAST ONE-CLICK LAUNCHERS:
+                1. DIRECT COMMUNICATION CHANNELS:
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                {/* Direct Email Card */}
+                <div className="p-3 rounded-xl bg-slate-900/90 border border-cyan-500/30 flex flex-col justify-between space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-400 text-[10px] uppercase font-bold flex items-center gap-1">
+                      <Mail className="w-3.5 h-3.5 text-cyan-400" />
+                      Direct Email
+                    </span>
+                    <button
+                      onClick={handleCopyEmail}
+                      className="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-cyan-300 text-[10px] flex items-center gap-1 transition-colors cursor-pointer"
+                    >
+                      {copiedEmail ? (
+                        <>
+                          <Check className="w-3 h-3 text-emerald-400" />
+                          <span className="text-emerald-400 font-bold">COPIED</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-3 h-3" />
+                          <span>COPY</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                  <a
+                    href="mailto:atharvayadav.dev@gmail.com"
+                    className="text-white font-bold text-xs hover:text-cyan-300 transition-colors break-all"
+                  >
+                    atharvayadav.dev@gmail.com
+                  </a>
+                  <a
+                    href="mailto:atharvayadav.dev@gmail.com?subject=Technical%20Interview%20Request%20%E2%80%94%20Firmware%20R%26D"
+                    className="w-full py-1.5 px-2 rounded bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 text-[11px] font-bold text-center block transition-colors"
+                  >
+                    Open in Mail Client →
+                  </a>
+                </div>
+
+                {/* LinkedIn Profile Card */}
+                <div className="p-3 rounded-xl bg-slate-900/90 border border-cyan-500/30 flex flex-col justify-between space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-400 text-[10px] uppercase font-bold flex items-center gap-1">
+                      <LinkedinIcon className="w-3.5 h-3.5 text-cyan-400" />
+                      LinkedIn Profile
+                    </span>
+                    <span className="text-[10px] text-emerald-400 font-bold">ACTIVE</span>
+                  </div>
+                  <div className="text-white font-bold text-xs">
+                    atharva-yadav-dev
+                  </div>
+                  <a
+                    href="https://www.linkedin.com/in/atharva-yadav-dev"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="w-full py-1.5 px-2 rounded bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 text-[11px] font-bold text-center flex items-center justify-center gap-1 transition-colors"
+                  >
+                    <span>Connect on LinkedIn</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                </div>
+
+                {/* GitHub Card */}
+                <div className="p-3 rounded-xl bg-slate-900/90 border border-slate-800 flex flex-col justify-between space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-400 text-[10px] uppercase font-bold flex items-center gap-1">
+                      <GithubIcon className="w-3.5 h-3.5 text-cyan-400" />
+                      GitHub Repos
+                    </span>
+                    <span className="text-[10px] text-slate-400">Open-Source</span>
+                  </div>
+                  <div className="text-white font-bold text-xs">
+                    github.com/AtharvaYadav-dev
+                  </div>
+                  <a
+                    href="https://github.com/AtharvaYadav-dev"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="w-full py-1.5 px-2 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-[11px] font-bold text-center flex items-center justify-center gap-1 transition-colors"
+                  >
+                    <span>View 8+ Repositories</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                </div>
+
+                {/* Location & Notice Period Card */}
+                <div className="p-3 rounded-xl bg-slate-900/90 border border-slate-800 flex flex-col justify-between space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-400 text-[10px] uppercase font-bold flex items-center gap-1">
+                      <MapPin className="w-3.5 h-3.5 text-cyan-400" />
+                      Location &amp; Mobility
+                    </span>
+                    <span className="text-[10px] text-emerald-400 font-bold">READY</span>
+                  </div>
+                  <div className="text-white font-bold text-xs">
+                    Mumbai, India
+                  </div>
+                  <div className="text-[10px] text-slate-400 leading-tight">
+                    Relocation: <strong className="text-cyan-300">Bangalore / Pune / Mumbai</strong> • Immediate / 30 Days
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Quick 1-Click Launchers */}
+            <div className="space-y-2">
+              <div className="text-[11px] text-cyan-400 font-bold uppercase tracking-wider">
+                2. PRE-FORMATTED RECRUITER TEMPLATES:
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                 <button
                   type="button"
                   onClick={() =>
                     handleLaunchEmailTemplate(
-                      'Technical Interview Request — Embedded Firmware R&D'
+                      'Technical Interview Request — Embedded Firmware R&D',
+                      'Hi Atharva,\n\nI reviewed your Cyber-Physical & Embedded Systems R&D portfolio and would like to schedule an interview with our engineering team.\n\nTarget Role:\nCompany / Location:\nProposed Time Window:\n\nBest regards,'
                     )
                   }
                   onMouseEnter={() => soundEngine.playHoverBlip()}
                   className="p-2.5 rounded-lg bg-cyan-950/50 hover:bg-cyan-900/60 border border-cyan-500/40 text-cyan-300 font-bold text-left transition-all cursor-pointer flex flex-col justify-between"
                 >
                   <span className="text-[11px]">[INTERVIEW REQUEST]</span>
-                  <span className="text-[9px] text-slate-400 mt-1">Prefill interview agenda</span>
+                  <span className="text-[9px] text-slate-400 mt-1">Prefilled interview sync</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() =>
                     handleLaunchEmailTemplate(
-                      'Direct R&D Engineering Role — EV / Defense / Lasers'
+                      'Direct R&D Engineering Role — EV / Defense / Lasers',
+                      'Hi Atharva,\n\nWe have an active engineering opening matching your skills in bare-metal C/C++, STM32, and instrumentation:\n\nDomain (EV / Defense / Lasers / Robotics):\nRole Overview:\nCompensation Range:\n\nBest regards,'
                     )
                   }
                   onMouseEnter={() => soundEngine.playHoverBlip()}
@@ -173,90 +283,38 @@ export default function QuickContactModal({ isOpen, onClose }) {
                   type="button"
                   onClick={() =>
                     handleLaunchEmailTemplate(
-                      'Technical Inquiry & Architecture Discussion'
+                      'Technical Inquiry & Architecture Discussion',
+                      'Hi Atharva,\n\nI came across your work on the BARC impedance bridge / Bio4D pneumatic PID loop and would like to discuss a technical collaboration or consulting inquiry.\n\nTopic / Project Scope:\n\nBest regards,'
                     )
                   }
                   onMouseEnter={() => soundEngine.playHoverBlip()}
                   className="p-2.5 rounded-lg bg-emerald-950/50 hover:bg-emerald-900/60 border border-emerald-500/40 text-emerald-300 font-bold text-left transition-all cursor-pointer flex flex-col justify-between"
                 >
-                  <span className="text-[11px]">[QUICK INQUIRY]</span>
-                  <span className="text-[9px] text-slate-400 mt-1">Consulting or technical sync</span>
+                  <span className="text-[11px]">[TECHNICAL INQUIRY]</span>
+                  <span className="text-[9px] text-slate-400 mt-1">Consulting / system sync</span>
                 </button>
               </div>
             </div>
 
-            {/* Direct Coordinates & Verification */}
-            <div className="p-3.5 rounded-xl bg-black/60 border border-cyan-500/30 space-y-2">
-              <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
-                <div className="flex items-center gap-2 text-slate-300">
-                  <Mail className="w-4 h-4 text-cyan-400" />
-                  <span className="font-bold text-white">atharvayadav.dev@gmail.com</span>
+            {/* Direct Message Dispatcher Form */}
+            <form onSubmit={handleFormSubmit} className="space-y-3 pt-2 border-t border-slate-800">
+              <div className="flex items-center justify-between">
+                <div className="text-[11px] text-cyan-400 font-bold uppercase tracking-wider">
+                  3. COMPOSE &amp; DISPATCH DIRECT MESSAGE:
                 </div>
-
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={handleCopyEmail}
-                    className="flex items-center gap-1 px-2.5 py-1 rounded bg-slate-900 border border-slate-700 hover:border-cyan-400 text-cyan-300 text-[11px] transition-colors cursor-pointer"
-                  >
-                    {copiedEmail ? (
-                      <>
-                        <Check className="w-3 h-3 text-emerald-400" />
-                        <span className="text-emerald-400 font-bold">COPIED</span>
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="w-3 h-3" />
-                        <span>COPY EMAIL</span>
-                      </>
-                    )}
-                  </button>
-
-                  <a
-                    href="https://www.linkedin.com/in/atharva-yadav-dev"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex items-center gap-1 px-2.5 py-1 rounded bg-slate-900 border border-slate-700 hover:border-cyan-400 text-cyan-300 text-[11px] transition-colors"
-                  >
-                    <LinkedinIcon className="w-3 h-3 text-cyan-400" />
-                    <span>LINKEDIN</span>
-                    <ExternalLink className="w-2.5 h-2.5 ml-0.5" />
-                  </a>
-
-                  <a
-                    href="https://github.com/AtharvaYadav-dev"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex items-center gap-1 px-2.5 py-1 rounded bg-slate-900 border border-slate-700 hover:border-cyan-400 text-cyan-300 text-[11px] transition-colors"
-                  >
-                    <GithubIcon className="w-3 h-3 text-cyan-400" />
-                    <span>GITHUB</span>
-                    <ExternalLink className="w-2.5 h-2.5 ml-0.5" />
-                  </a>
-                </div>
-              </div>
-
-              <div className="text-[10px] text-slate-400 flex flex-wrap items-center gap-3 pt-1 border-t border-slate-800">
-                <span className="flex items-center gap-1">
-                  <MapPin className="w-3 h-3 text-cyan-400" />
-                  Mumbai, India (Open to Relocation: BLR / Pune / Mumbai)
-                </span>
-                <span>•</span>
-                <span className="text-emerald-400 font-bold">AVAILABILITY: IMMEDIATE / 30 DAYS</span>
-              </div>
-            </div>
-
-            {/* Quick Contact Form */}
-            <form onSubmit={handleFormSubmit} className="space-y-3">
-              <div className="text-[11px] text-cyan-400 font-bold uppercase tracking-wider">
-                2. OR DISPATCH DIRECT MESSAGE:
+                {dispatched && (
+                  <span className="text-[10px] text-emerald-400 font-bold flex items-center gap-1">
+                    <Check className="w-3 h-3" />
+                    EMAIL CLIENT TRIGGERED
+                  </span>
+                )}
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="text-[10px] text-slate-400 uppercase">Your Name *</label>
+                  <label className="text-[10px] text-slate-400 uppercase">Your Name</label>
                   <input
                     type="text"
-                    required
                     value={formName}
                     onChange={(e) => setFormName(e.target.value)}
                     placeholder="e.g. Dr. Jennifer Vance"
@@ -278,10 +336,9 @@ export default function QuickContactModal({ isOpen, onClose }) {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="text-[10px] text-slate-400 uppercase">Contact Email *</label>
+                  <label className="text-[10px] text-slate-400 uppercase">Contact Email</label>
                   <input
                     type="email"
-                    required
                     value={formEmail}
                     onChange={(e) => setFormEmail(e.target.value)}
                     placeholder="recruiter@deeptech.com"
@@ -306,39 +363,34 @@ export default function QuickContactModal({ isOpen, onClose }) {
               </div>
 
               <div className="space-y-1">
-                <label className="text-[10px] text-slate-400 uppercase">Message / Opportunity Scope *</label>
+                <label className="text-[10px] text-slate-400 uppercase">Message / Role Scope</label>
                 <textarea
                   rows={3}
-                  required
                   value={formMsg}
                   onChange={(e) => setFormMsg(e.target.value)}
-                  placeholder="Tell me about the engineering challenge, hardware topology, or role you want me to own..."
+                  placeholder="Tell me about the engineering challenge, hardware topology, or role scope..."
                   className="w-full px-3 py-2 rounded bg-slate-950/80 border border-slate-800 focus:border-cyan-400 text-slate-200 outline-none transition-colors resize-none"
                 />
               </div>
 
-              <button
-                type="submit"
-                disabled={isSending}
-                className="w-full py-3 px-4 rounded-lg bg-cyan-500 hover:bg-cyan-400 disabled:bg-cyan-700 text-black font-display font-bold text-xs tracking-wider transition-all flex items-center justify-center gap-2 glow-cyan cursor-pointer"
-              >
-                {isSending ? (
-                  <>
-                    <Radio className="w-4 h-4 animate-spin" />
-                    <span>TRANSMITTING PACKETS OVER SERIAL BUS...</span>
-                  </>
-                ) : sentSuccess ? (
-                  <>
-                    <Check className="w-4 h-4 text-black" />
-                    <span>TRANSMISSION CONFIRMED // DISPATCHED</span>
-                  </>
-                ) : (
-                  <>
-                    <Send className="w-4 h-4" />
-                    <span>[DISPATCH DIRECT TRANSMISSION TO ATHARVA]</span>
-                  </>
-                )}
-              </button>
+              <div className="flex flex-wrap items-center gap-2 pt-1">
+                <button
+                  type="submit"
+                  className="flex-1 py-3 px-4 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-black font-display font-bold text-xs tracking-wider transition-all flex items-center justify-center gap-2 glow-cyan cursor-pointer"
+                >
+                  <Send className="w-4 h-4" />
+                  <span>[LAUNCH EMAIL CLIENT WITH MESSAGE]</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleCopyFullForm}
+                  className="py-3 px-3.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 hover:border-cyan-400 text-xs font-bold transition-colors cursor-pointer"
+                  title="Copy formatted message to clipboard"
+                >
+                  {copiedSummary ? 'COPIED!' : 'COPY DRAFT'}
+                </button>
+              </div>
             </form>
           </div>
         </motion.div>
@@ -346,4 +398,3 @@ export default function QuickContactModal({ isOpen, onClose }) {
     </AnimatePresence>
   );
 }
-

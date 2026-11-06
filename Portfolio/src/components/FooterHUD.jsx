@@ -1,7 +1,8 @@
 import React from 'react';
-import { Cpu, ShieldCheck, ArrowUp, ExternalLink } from 'lucide-react';
+import { Cpu, ShieldCheck, ArrowUp, ExternalLink, FileText, Download } from 'lucide-react';
 import { soundEngine } from '../utils/soundEngine';
 import { smoothScrollTo } from '../utils/scrollHelper';
+import { RESUME_PATH, RESUME_FILENAME } from '../utils/resumeData';
 
 function GithubIcon({ className = 'w-3.5 h-3.5' }) {
   return (
@@ -35,35 +36,66 @@ export default function FooterHUD() {
           </div>
         </div>
 
-        {/* Center: Direct Repos & LinkedIn */}
-        <div className="flex flex-wrap items-center gap-4 text-[11px]">
+        {/* Center: Resume CTAs, Direct Repos & LinkedIn */}
+        <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-[11px]">
+          {/* Engineering Resume (PDF) Direct View */}
+          <a
+            href={RESUME_PATH}
+            target="_blank"
+            rel="noopener noreferrer"
+            onMouseEnter={() => soundEngine.playHoverBlip()}
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-slate-900 border border-cyan-500/40 hover:border-cyan-400 text-cyan-300 hover:text-white transition-colors"
+            title="Open Atharva Yadav Engineering Resume (PDF) in New Tab"
+          >
+            <FileText className="w-3.5 h-3.5 text-cyan-400" />
+            <span>View Resume (PDF)</span>
+            <ExternalLink className="w-2.5 h-2.5 text-cyan-400" />
+          </a>
+
+          {/* Direct Browser Download */}
+          <a
+            href={RESUME_PATH}
+            download={RESUME_FILENAME}
+            onClick={() => soundEngine.playHoverBlip()}
+            onMouseEnter={() => soundEngine.playHoverBlip()}
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-cyan-950/80 border border-cyan-500/60 hover:bg-cyan-500 hover:text-black text-cyan-300 font-bold transition-all"
+            title="Download Atharva Yadav Engineering Resume (PDF)"
+          >
+            <Download className="w-3.5 h-3.5" />
+            <span>Download PDF</span>
+          </a>
+
+          <span className="text-slate-700 hidden sm:inline">|</span>
+
           <a
             href="https://github.com/AtharvaYadav-dev"
             target="_blank"
             rel="noreferrer"
             onMouseEnter={() => soundEngine.playHoverBlip()}
-            className="flex items-center gap-1.5 text-cyan-400 hover:text-white transition-colors"
+            className="flex items-center gap-1.5 text-slate-400 hover:text-white transition-colors"
           >
-            <GithubIcon className="w-3.5 h-3.5" />
-            <span>GitHub // AtharvaYadav-dev</span>
+            <GithubIcon className="w-3.5 h-3.5 text-cyan-400" />
+            <span>GitHub</span>
             <ExternalLink className="w-2.5 h-2.5" />
           </a>
-          <span className="text-slate-700">|</span>
+
+          <span className="text-slate-700 hidden sm:inline">|</span>
+
           <a
             href="https://www.linkedin.com/in/atharva-yadav-dev"
             target="_blank"
             rel="noreferrer"
             onMouseEnter={() => soundEngine.playHoverBlip()}
-            className="flex items-center gap-1.5 text-cyan-400 hover:text-white transition-colors"
+            className="flex items-center gap-1.5 text-slate-400 hover:text-white transition-colors"
           >
-            <span>LinkedIn // atharva-yadav-dev</span>
+            <span>LinkedIn</span>
             <ExternalLink className="w-2.5 h-2.5" />
           </a>
         </div>
 
-        {/* Right: Scroll to top */}
+        {/* Right: Scroll to top & Status */}
         <div className="flex items-center gap-3">
-          <span className="hidden sm:inline text-[10px] text-emerald-400 font-bold flex items-center gap-1">
+          <span className="hidden lg:inline text-[10px] text-emerald-400 font-bold flex items-center gap-1">
             <ShieldCheck className="w-3.5 h-3.5" />
             ALL SYSTEMS NOMINAL
           </span>
