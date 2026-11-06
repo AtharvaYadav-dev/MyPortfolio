@@ -76,6 +76,11 @@ class SoundEngine {
     } catch {}
   }
 
+  // Keyboard typing tick / subtle interaction tick
+  playHoverTick() {
+    this.playHoverBlip();
+  }
+
   // 2. Futuristic mechanical lock sound when switching machine tabs
   playTabLock() {
     if (this.isMuted) return;

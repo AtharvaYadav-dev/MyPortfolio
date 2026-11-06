@@ -1,5 +1,7 @@
 // Vercel Serverless Function: api/chat.js
 // Handles Atharva-AI queries with Gemini API & System Knowledge Base
+import fs from 'fs';
+import path from 'path';
 
 const SYSTEM_PROMPT = `You are ATHARVA-AI, the interactive technical portfolio assistant for Atharva Vinayak Yadav.
 Your audience consists of Engineering Managers, Firmware Architects, R&D Leads, and Technical Recruiters.
@@ -23,6 +25,39 @@ BEHAVIOR RULES:
 - Highlight Atharva's rare ability to bridge bare-metal MCU firmware (C/C++, STM32, DMA) with high-performance multithreaded desktop control software (Python/PySide6) for real industrial and defense hardware.
 - For resume or contact requests, direct them to the 'Download Resume' button or LinkedIn.`;
 
+function resolveApiKey() {
+  if (process.env.GEMINI_API_KEY) return process.env.GEMINI_API_KEY;
+  if (process.env.VITE_GEMINI_API_KEY) return process.env.VITE_GEMINI_API_KEY;
+
+  // Local development file fallback
+  const possiblePaths = [
+    path.resolve(process.cwd(), '.env.local'),
+    path.resolve(process.cwd(), '.env'),
+    path.resolve(process.cwd(), 'Portfolio/.env.local'),
+    path.resolve(process.cwd(), 'Portfolio/.env'),
+    path.resolve(process.cwd(), '../.env.local'),
+    path.resolve(process.cwd(), '../.env')
+  ];
+
+  for (const p of possiblePaths) {
+    try {
+      if (fs.existsSync(p)) {
+        const fileContent = fs.readFileSync(p, 'utf8');
+        for (const line of fileContent.split('\n')) {
+          const trimmed = line.trim();
+          if (trimmed.startsWith('GEMINI_API_KEY=') || trimmed.startsWith('VITE_GEMINI_API_KEY=')) {
+            const val = trimmed.split('=')[1]?.trim();
+            if (val) return val;
+          }
+        }
+      }
+    } catch {
+      // ignore
+    }
+  }
+  return null;
+}
+
 export default async function handler(req, res) {
   // CORS handling
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -38,10 +73,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const apiKey =
-      process.env.GEMINI_API_KEY ||
-      process.env.VITE_GEMINI_API_KEY ||
-      (typeof import.meta !== 'undefined' && import.meta.env?.VITE_GEMINI_API_KEY);
+    const apiKey = resolveApiKey();
 
     if (!apiKey) {
       return res.status(500).json({
@@ -56,33 +88,52 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Message text is required.' });
     }
 
-    // Format chat contents for Gemini generateContent
+    // Format and sanitize chat contents for Gemini generateContent:
+    // 1. First message must be 'user' (skip any initial assistant welcome message).
+    // 2. Roles must strictly alternate between 'user' and 'model'.
     const formattedContents = [];
+    let lastRole = null;
 
-    // Append prior chat history if present
-    if (Array.isArray(history) && history.length > 0) {
+    if (Array.isArray(history)) {
       for (const turn of history) {
-        if (turn.role && turn.text) {
+        if (!turn?.text) continue;
+        const role = turn.role === 'assistant' ? 'model' : 'user';
+
+        // Skip leading model messages
+        if (formattedContents.length === 0 && role === 'model') {
+          continue;
+        }
+
+        if (role === lastRole) {
+          formattedContents[formattedContents.length - 1].parts[0].text += '\n\n' + turn.text;
+        } else {
           formattedContents.push({
-            role: turn.role === 'assistant' ? 'model' : 'user',
+            role,
             parts: [{ text: turn.text }]
           });
+          lastRole = role;
         }
       }
     }
 
-    // Append the new user message
-    formattedContents.push({
-      role: 'user',
-      parts: [{ text: message }]
-    });
+    // Append the current user query
+    if (lastRole === 'user') {
+      formattedContents[formattedContents.length - 1].parts[0].text += '\n\n' + message;
+    } else {
+      formattedContents.push({
+        role: 'user',
+        parts: [{ text: message }]
+      });
+    }
 
-    // Model candidates: primary requested model first, then auto-fallback
+    // Robust list of Gemini models: fast production models first
     const modelsToTry = [
+      'gemini-flash-lite-latest',
+      'gemini-3.1-flash-lite',
+      'gemini-3-flash-preview',
       'gemini-2.5-flash',
       'gemini-3.8-flash',
-      'gemini-flash-latest',
-      'gemini-2.5-flash-lite'
+      'gemma-4-26b-a4b-it'
     ];
 
     let lastError = null;
@@ -98,18 +149,23 @@ export default async function handler(req, res) {
             parts: [{ text: SYSTEM_PROMPT }]
           },
           generationConfig: {
-            temperature: 0.4,
+            temperature: 0.35,
             maxOutputTokens: 600,
             topP: 0.8
           }
         };
 
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 9000);
+
         const response = await fetch(apiUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
+          body: JSON.stringify(payload),
+          signal: controller.signal
         });
 
+        clearTimeout(timeout);
         const data = await response.json();
 
         if (response.ok && data?.candidates?.[0]?.content?.parts?.[0]?.text) {
@@ -117,25 +173,22 @@ export default async function handler(req, res) {
           break;
         }
 
-        // If systemInstruction is not supported by legacy endpoint, try prepending system prompt
+        // If systemInstruction is rejected by legacy or gemma models, prepend instruction to user message
         if (data?.error?.code === 400 && data.error.message?.includes('systemInstruction')) {
-          const fallbackPayload = {
-            contents: [
-              {
-                role: 'user',
-                parts: [{ text: `SYSTEM INSTRUCTION:\n${SYSTEM_PROMPT}\n\nUSER QUESTION:\n${message}` }]
-              }
-            ],
-            generationConfig: {
-              temperature: 0.4,
-              maxOutputTokens: 600
+          const fallbackContents = [
+            {
+              role: 'user',
+              parts: [{ text: `SYSTEM DIRECTIVE:\n${SYSTEM_PROMPT}\n\nUSER QUERY:\n${message}` }]
             }
-          };
+          ];
 
           const retryRes = await fetch(apiUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(fallbackPayload)
+            body: JSON.stringify({
+              contents: fallbackContents,
+              generationConfig: { temperature: 0.35, maxOutputTokens: 600 }
+            })
           });
 
           const retryData = await retryRes.json();

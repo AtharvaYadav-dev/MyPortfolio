@@ -226,11 +226,27 @@ export default function AtharvaAI({ onOpenResume, onOpenContact }) {
 
         if (fallbackKey) {
           const candidateModels = [
+            'gemini-flash-lite-latest',
+            'gemini-3.1-flash-lite',
+            'gemini-3-flash-preview',
             'gemini-2.5-flash',
             'gemini-3.8-flash',
-            'gemini-flash-latest',
-            'gemini-2.5-flash-lite',
+            'gemma-4-26b-a4b-it'
           ];
+
+          // Sanitize contents: skip leading model message, ensure user is first
+          const sanitizedContents = [];
+          let lastTurnRole = null;
+          for (const m of nextMessages) {
+            const r = m.role === 'assistant' ? 'model' : 'user';
+            if (sanitizedContents.length === 0 && r === 'model') continue;
+            if (r === lastTurnRole) {
+              sanitizedContents[sanitizedContents.length - 1].parts[0].text += '\n\n' + m.text;
+            } else {
+              sanitizedContents.push({ role: r, parts: [{ text: m.text }] });
+              lastTurnRole = r;
+            }
+          }
 
           for (const model of candidateModels) {
             try {
@@ -240,17 +256,12 @@ export default function AtharvaAI({ onOpenResume, onOpenContact }) {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({
-                    contents: [
-                      ...nextMessages.map((m) => ({
-                        role: m.role === 'assistant' ? 'model' : 'user',
-                        parts: [{ text: m.text }],
-                      })),
-                    ],
+                    contents: sanitizedContents,
                     systemInstruction: {
                       parts: [{ text: SYSTEM_PROMPT }],
                     },
                     generationConfig: {
-                      temperature: 0.4,
+                      temperature: 0.35,
                       maxOutputTokens: 600,
                     },
                   }),
