@@ -138,7 +138,7 @@ export default function NavigationHUD({
           </div>
 
           {/* Desktop Full Navigation Links */}
-          <nav className="hidden lg:flex items-center gap-1 bg-[#040813]/85 backdrop-blur-md px-3 py-1.5 rounded-full border border-cyan-500/30 shadow-lg">
+          <nav className="hidden lg:flex items-center gap-1 bg-[#040813]/85 backdrop-blur-md px-3 py-1.5 rounded-full border border-cyan-500/30 shadow-lg text-[11px]">
             <button
               onClick={() => scrollTo('machines')}
               onMouseEnter={() => soundEngine.playHoverBlip()}
@@ -148,19 +148,27 @@ export default function NavigationHUD({
             </button>
             <span className="text-slate-600">/</span>
             <button
+              onClick={() => scrollTo('architecture-xray')}
+              onMouseEnter={() => soundEngine.playHoverBlip()}
+              className="px-2 py-1 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded transition-all cursor-pointer font-bold"
+            >
+              // 02. X-RAY
+            </button>
+            <span className="text-slate-600">/</span>
+            <button
               onClick={() => scrollTo('architecture')}
               onMouseEnter={() => soundEngine.playHoverBlip()}
               className="px-2 py-1 text-slate-300 hover:text-cyan-300 hover:bg-cyan-500/10 rounded transition-all cursor-pointer"
             >
-              // 02. PCB_MATRIX
+              // 03. PCB_MATRIX
             </button>
             <span className="text-slate-600">/</span>
             <button
-              onClick={() => scrollTo('builder-profile')}
+              onClick={() => scrollTo('jd-analyzer')}
               onMouseEnter={() => soundEngine.playHoverBlip()}
-              className="px-2 py-1 text-slate-300 hover:text-cyan-300 hover:bg-cyan-500/10 rounded transition-all cursor-pointer"
+              className="px-2 py-1 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded transition-all cursor-pointer font-bold"
             >
-              // 03. PROFILE
+              // 04. JD_FIT
             </button>
             <span className="text-slate-600">/</span>
             <button
@@ -168,7 +176,7 @@ export default function NavigationHUD({
               onMouseEnter={() => soundEngine.playHoverBlip()}
               className="px-2 py-1 text-slate-300 hover:text-cyan-300 hover:bg-cyan-500/10 rounded transition-all cursor-pointer"
             >
-              // 04. ROI_BENCH
+              // 05. ROI_BENCH
             </button>
             <span className="text-slate-600">/</span>
             <button
@@ -176,7 +184,7 @@ export default function NavigationHUD({
               onMouseEnter={() => soundEngine.playHoverBlip()}
               className="px-2 py-1 text-slate-300 hover:text-cyan-300 hover:bg-cyan-500/10 rounded transition-all cursor-pointer"
             >
-              // 05. R&amp;D_LOG
+              // 06. R&amp;D_LOG
             </button>
             <span className="text-slate-600">/</span>
             <button
@@ -185,7 +193,7 @@ export default function NavigationHUD({
               className="px-2 py-1 text-slate-300 hover:text-cyan-300 hover:bg-cyan-500/10 rounded transition-all flex items-center gap-1 cursor-pointer"
             >
               <Terminal className="w-3 h-3 text-cyan-400" />
-              // 06. UART_IO
+              // 07. UART_IO
             </button>
           </nav>
         </div>

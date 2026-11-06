@@ -82,7 +82,10 @@ export default async function handler(req, res) {
     }
 
     const body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
-    const { message, history = [] } = body;
+    const { message, history = [], systemPrompt: customPrompt } = body;
+    const activeSystemPrompt = (typeof customPrompt === 'string' && customPrompt.trim())
+      ? customPrompt.trim()
+      : SYSTEM_PROMPT;
 
     if (!message || typeof message !== 'string') {
       return res.status(400).json({ error: 'Message text is required.' });
@@ -146,7 +149,7 @@ export default async function handler(req, res) {
         const payload = {
           contents: formattedContents,
           systemInstruction: {
-            parts: [{ text: SYSTEM_PROMPT }]
+            parts: [{ text: activeSystemPrompt }]
           },
           generationConfig: {
             temperature: 0.35,
@@ -178,7 +181,7 @@ export default async function handler(req, res) {
           const fallbackContents = [
             {
               role: 'user',
-              parts: [{ text: `SYSTEM DIRECTIVE:\n${SYSTEM_PROMPT}\n\nUSER QUERY:\n${message}` }]
+              parts: [{ text: `SYSTEM DIRECTIVE:\n${activeSystemPrompt}\n\nUSER QUERY:\n${message}` }]
             }
           ];
 

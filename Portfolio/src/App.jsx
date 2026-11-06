@@ -11,9 +11,12 @@ import InteractiveLaserCanvas from './components/InteractiveLaserCanvas';
 import TelemetryHUDWidget from './components/TelemetryHUDWidget';
 import HeroSection from './components/HeroSection';
 import RecruiterQuickMode from './components/RecruiterQuickMode';
+import TelemetryWidget from './components/TelemetryWidget';
 import MachinesBay from './components/MachinesBay';
+import ArchitectureXRay from './components/ArchitectureXRay';
 import PCBArchitectureMatrix from './components/PCBArchitectureMatrix';
 import EngineerProfileBento from './components/EngineerProfileBento';
+import JDMatchAnalyzer from './components/JDMatchAnalyzer';
 import HireAtharvaROIWidget from './components/HireAtharvaROIWidget';
 import CareerTelemetryTimeline from './components/CareerTelemetryTimeline';
 import UARTTerminalCTA from './components/UARTTerminalCTA';
@@ -143,6 +146,9 @@ export default function App() {
           />
         </section>
 
+        {/* Live Interactive MCU Telemetry & Circular DMA Oscilloscope Simulator */}
+        <TelemetryWidget />
+
         {/* 02. GSAP Pinned Scroll-Storytelling: The 8 Flagship R&D Machines */}
         <MachinesBay
           selectedDomain={selectedDomain}
@@ -151,11 +157,20 @@ export default function App() {
           onOpenContact={() => setIsContactModalOpen(true)}
         />
 
+        {/* Interactive System Architecture X-Ray (Silicon-to-UI Signal-Chain) */}
+        <ArchitectureXRay />
+
         {/* 03. Interactive PCB Trace Architecture Matrix */}
         <PCBArchitectureMatrix />
 
         {/* 03.5. "The Complete Builder" Cross-Domain Bento Grid */}
         <EngineerProfileBento />
+
+        {/* AI-Powered Job Description Compatibility Diagnostic */}
+        <JDMatchAnalyzer
+          onOpenResume={() => setIsResumeModalOpen(true)}
+          onOpenContact={() => setIsContactModalOpen(true)}
+        />
 
         {/* 04. "Why Hire Atharva" 3-in-1 Role Consolidation & ROI Bench */}
         <HireAtharvaROIWidget />
